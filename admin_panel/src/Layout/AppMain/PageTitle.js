@@ -1,10 +1,10 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import cx from "classnames";
 
 import TitleComponent1 from "./PageTitleExamples/Variation1";
 import TitleComponent2 from "./PageTitleExamples/Variation2";
 import TitleComponent3 from "./PageTitleExamples/Variation3";
+import { connect } from "react-redux";
+import cx from "classnames";
 
 class PageTitle extends Component {
   randomize(myArray) {
@@ -41,7 +41,8 @@ class PageTitle extends Component {
               </div>
             </div>
           </div>
-          <div className="page-title-actions">{this.randomize(arr)}</div>
+          {/* <div className="page-title-actions">{this.randomize(arr)}</div> */}
+          
         </div>
       </div>
     );

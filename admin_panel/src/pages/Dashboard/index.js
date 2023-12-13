@@ -14,7 +14,7 @@ import ThemeOptions from "../../Layout/ThemeOptions/";
 const Dashboard = ({match}) => {
   return (
     <Fragment>
-      <ThemeOptions />
+      {/* <ThemeOptions /> */}
       <AppHeader />
       <div className="app-main">
         <AppSidebar />
@@ -26,7 +26,7 @@ const Dashboard = ({match}) => {
             <Route path={`${match.url}/articles`} component={Articles} />            
             <Route path={`${match.url}/sections`} component={Sections} />            
           </div>
-          <AppFooter />
+          {/* <AppFooter /> */}
         </div>
       </div>       
     </Fragment>
