@@ -1,14 +1,14 @@
 import "./polyfills";
-import React from "react";
-import { createRoot } from 'react-dom/client';
+import "./assets/base.scss";
 
 import * as serviceWorker from "./serviceWorker";
 
 import { HashRouter } from "react-router-dom";
-import "./assets/base.scss";
-import Main from "./DemoPages/Main";
-import configureStore from "./config/configureStore";
+import Main from "./pages/Main";
 import { Provider } from "react-redux";
+import React from "react";
+import configureStore from "./config/configureStore";
+import { createRoot } from 'react-dom/client';
 
 const store = configureStore();
 const rootElement = document.getElementById("root");
@@ -24,8 +24,8 @@ const renderApp = (Component) => (
 const root = createRoot(rootElement).render(renderApp(Main));
 
 if (module.hot) {
-  module.hot.accept("./DemoPages/Main", () => {
-    const NextApp = require("./DemoPages/Main").default;
+  module.hot.accept("./pages/Main", () => {
+    const NextApp = require("./pages/Main").default;
     root.render(renderApp(NextApp));
   });
 }
