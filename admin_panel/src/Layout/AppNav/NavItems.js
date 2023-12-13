@@ -1,31 +1,31 @@
 export const ClinicNav = [
     {
         label: 'Informacje ogólne',
-        icon: 'pe-7s-rocket',
-        to: '#/general',
+        icon: 'pe-7s-info',
+        to: '#/dashboard/general',
     },
     {
         label: 'Lekarze',
-        icon: 'pe-7s-rocket',
-        to: '#/doctors',
+        icon: 'pe-7s-users',
+        to: '#/dashboard/doctors',
     },
     {
         label: 'Usługi',
-        icon: 'pe-7s-rocket',
-        to: '#/services',
+        icon: 'pe-7s-eyedropper',
+        to: '#/dashboard/services',
     }
 ];
 
 export const ContentNav = [
     {
         label: 'Sekcje',
-        icon: 'pe-7s-rocket',
-        to: '#/sections',
+        icon: 'pe-7s-menu',
+        to: '#/dashboard/sections',
     },
     {
         label: 'Artykuły',
-        icon: 'pe-7s-rocket',
-        to: '#/articles',
+        icon: 'pe-7s-news-paper',
+        to: '#/dashboard/articles',
     },
 ];
  

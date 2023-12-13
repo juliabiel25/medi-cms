@@ -1,41 +1,42 @@
 import React, { Fragment } from "react";
-import { Route } from "react-router-dom";
 
-// Forms
-
-import FormElementsLayouts from "./Elements/Layouts/";
+import AppFooter from "../../Layout/AppFooter/";
+import AppHeader from "../../Layout/AppHeader/";
+import AppSidebar from "../../Layout/AppSidebar/";
+import FormClipboard from "./Components/Clipboard/";
+import FormColorPicker from "./Components/ColorPicker/";
+import FormDatePicker from "./Components/DatePicker/";
+import FormDropZone from "./Components/DropZone/";
+import FormDropdown from "./Components/Dropdown/";
 import FormElementsControls from "./Elements/Controls/";
+import FormElementsLayouts from "./Elements/Layouts/";
+import FormElementsSticky from "./Elements/StickyHeaders/";
 import FormElementsValidation from "./Elements/Validation/";
-
+import FormInputMask from "./Components/InputMask/";
+import FormMultiSelect from "./Components/MultiSelect/";
+import FormRangeSlider from "./Components/RangeSlider/";
+import FormTextareaAutosize from "./Components/TextareaAutosize/";
+import FormToggleSwitch from "./Components/ToggleSwitch/";
+import FormTypeahead from "./Components/Typeahead/";
 import FormWizardVar1 from "./Elements/Wizard/Examples/Variation1";
 import FormWizardVar2 from "./Elements/Wizard/Examples/Variation2";
 import FormWizardVar3 from "./Elements/Wizard/Examples/Variation3";
-
-import FormElementsSticky from "./Elements/StickyHeaders/";
-
-import FormDatePicker from "./Components/DatePicker/";
-import FormRangeSlider from "./Components/RangeSlider/";
 import FormWysiwygEditor from "./Components/WysiwygEditor/";
-import FormToggleSwitch from "./Components/ToggleSwitch/";
-import FormMultiSelect from "./Components/MultiSelect/";
-import FormDropdown from "./Components/Dropdown/";
-import FormInputMask from "./Components/InputMask/";
-import FormDropZone from "./Components/DropZone/";
-import FormTypeahead from "./Components/Typeahead/";
-import FormClipboard from "./Components/Clipboard/";
-import FormTextareaAutosize from "./Components/TextareaAutosize/";
 import FormsNumberPickerExamples from "./Components/NumberPicker/";
-import FormColorPicker from "./Components/ColorPicker/";
+import { Route } from "react-router-dom";
+import ThemeOptions from "../../Layout/ThemeOptions/";
+
+// Forms
+
+
+
+
 
 // Layout
 
-import AppHeader from "../../Layout/AppHeader/";
-import AppSidebar from "../../Layout/AppSidebar/";
-import AppFooter from "../../Layout/AppFooter/";
 
 // Theme Options
 
-import ThemeOptions from "../../Layout/ThemeOptions/";
 
 const Forms = ({ match }) => (
   <Fragment>
@@ -47,7 +48,7 @@ const Forms = ({ match }) => (
         <div className="app-main__inner">
           {/* Form Elements */}
 
-          <Route path={`${match.url}/controls`} component={FormElementsControls}/>
+          <Route path={`${match.url}/general`} component={FormElementsControls}/>
           <Route path={`${match.url}/layouts`} component={FormElementsLayouts}/>
           <Route path={`${match.url}/validation`} component={FormElementsValidation}/>
           <Route path={`${match.url}/wizard-1`} component={FormWizardVar1} />

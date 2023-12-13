@@ -1,21 +1,21 @@
-import React, { Fragment } from "react";
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import FormsCustomControls from "./CustomControls";
-
 import {
   Button,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  FormText,
-  Row,
-  Col,
   Card,
   CardBody,
   CardTitle,
+  Col,
   Container,
+  Form,
+  FormGroup,
+  FormText,
+  Input,
+  Label,
+  Row,
 } from "reactstrap";
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import React, { Fragment } from "react";
+
+import FormsCustomControls from "./CustomControls";
 
 export default class FormsDefault extends React.Component {
   render() {
@@ -26,58 +26,43 @@ export default class FormsDefault extends React.Component {
             timeout={0} enter={false} exit={false}>
             <Container fluid>
               <Row>
-                <Col md="6">
                   <Card className="main-card mb-3">
                     <CardBody>
-                      <CardTitle>Controls Types</CardTitle>
+                      <CardTitle>Dane kliniki</CardTitle>
                       <Form>
                         <FormGroup>
-                          <Label for="exampleEmail">Email</Label>
-                          <Input type="email" name="email" id="exampleEmail" placeholder="with a placeholder"/>
+                          <Label for="name">Nazwa</Label>
+                          <Input type="text" name="name" id="name"/>
                         </FormGroup>
                         <FormGroup>
-                          <Label for="examplePassword">Password</Label>
-                          <Input type="password" name="password" id="examplePassword" placeholder="password placeholder"/>
+                          <Label for="city">Miasto</Label>
+                          <Input type="text" name="city" id="city"/>
                         </FormGroup>
                         <FormGroup>
-                          <Label for="exampleSelect">Select</Label>
-                          <Input type="select" name="select" id="exampleSelect">
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                          </Input>
+                          <Label for="country">Państwo</Label>
+                          <Input type="text" name="country" id="country"/>
                         </FormGroup>
                         <FormGroup>
-                          <Label for="exampleSelectMulti">Select Multiple</Label>
-                          <Input type="select" name="selectMulti" id="exampleSelectMulti" multiple>
-                            <option>1</option>
-                            <option>2</option>
-                            <option>3</option>
-                            <option>4</option>
-                            <option>5</option>
-                          </Input>
+                          <Label for="phoneno">Nr telefonu</Label>
+                          <Input type="tel" name="phoneno" id="phoneno"/>
                         </FormGroup>
                         <FormGroup>
-                          <Label for="exampleText">Text Area</Label>
-                          <Input type="textarea" name="text" id="exampleText" />
-                        </FormGroup>
+                          <Label for="email">E-mail</Label>
+                          <Input type="email" name="email" id="email"/>
+                        </FormGroup>                    
                         <FormGroup>
-                          <Label for="exampleFile">File</Label>
-                          <Input type="file" name="file" id="exampleFile" />
-                          <FormText color="muted">
-                            This is some placeholder block-level help text for the
-                            above input. It's a bit lighter and easily wraps to a
-                            new line.
-                          </FormText>
-                        </FormGroup>
+                          <Label for="footerText">Tekst stopki</Label>
+                          <Input type="textarea" name="footerText" id="footerText"/>
+                        </FormGroup>                    
+
+                       
                         <Button color="primary" className="mt-1">
                           Submit
                         </Button>
                       </Form>
                     </CardBody>
                   </Card>
+                <Col md="6">
                 </Col>
                 <Col md="6">
                   <Card className="main-card mb-3">
