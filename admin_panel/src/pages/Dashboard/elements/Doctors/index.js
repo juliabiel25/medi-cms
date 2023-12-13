@@ -25,7 +25,6 @@ import avatar4 from "../../../../assets/utils/images/avatars/4.jpg";
 import { color } from "d3-color";
 
 const Doctors = ({}) => {
-
     const data = [
       {
         firstName: 'Stanisław',
