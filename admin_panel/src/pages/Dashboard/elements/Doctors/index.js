@@ -76,37 +76,29 @@ const Doctors = ({}) => {
                                 {doctor.specialty}
                               </h6>
                             </div>
-                            {/* <div className="menu-header-btn-pane">
-                              <Button type="button" color="warning" className="btn-wide btn-shadow btn-pill"
-                                onClick={() => {
-                                  this.setState({ value: Math.random() * 100 });
-                                }}>
-                                Refresh
-                              </Button>
-                            </div> */}
                           </div>
                         </div>
                       </div>
                       <ListGroup flush>
                         <ListGroupItem className="p-0">
-                          <div className="widget-content">
+                          {/* <div className="widget-content">
                             <div className="text-center">
                             </div>
-                          </div>
+                          </div> */}
                         </ListGroupItem>
                         <ListGroupItem className="p-0">
                           <div className="grid-menu grid-menu-2col">
                             <Row className="g-0">
-                              <Col sm="6">
+                              {/* <Col sm="6"> */}
                                 <div className="p-1">
                                   <Button className="btn-icon-vertical btn-transition-text btn-transition btn-transition-alt pt-2 pb-2"
                                     outline color="focus">
                                     <i className="lnr-sun text-primary opacity-7 btn-icon-wrapper mb-2"> {" "} </i>
-                                    View Profile
+                                    Wyświetl profil
                                   </Button>
                                 </div>
-                              </Col>
-                              <Col sm="6">
+                              {/* </Col> */}
+                              {/* <Col sm="6">
                                 <div className="p-1">
                                   <Button className="btn-icon-vertical btn-transition-text btn-transition btn-transition-alt pt-2 pb-2"
                                     outline color="focus">
@@ -114,7 +106,7 @@ const Doctors = ({}) => {
                                     View Leads
                                   </Button>
                                 </div>
-                              </Col>
+                              </Col> */}
                             </Row>
                           </div>
                         </ListGroupItem>

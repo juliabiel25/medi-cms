@@ -4,6 +4,7 @@ import AppFooter from "../../Layout/AppFooter/";
 import AppHeader from "../../Layout/AppHeader/";
 import AppSidebar from "../../Layout/AppSidebar/";
 import Articles from './elements/Articles';
+import DoctorProfile from './elements/DoctorProfile';
 import Doctors from './elements/Doctors';
 import GeneralInfo from './elements/GeneralInfo';
 import { Route } from "react-router-dom";
@@ -20,11 +21,12 @@ const Dashboard = ({match}) => {
         <AppSidebar />
         <div className="app-main__outer">
           <div className="app-main__inner">
-            <Route path={`${match.url}/general`} component={GeneralInfo}/>
-            <Route path={`${match.url}/doctors`} component={Doctors}/>
-            <Route path={`${match.url}/services`} component={Services}/>
-            <Route path={`${match.url}/articles`} component={Articles} />            
-            <Route path={`${match.url}/sections`} component={Sections} />            
+            <Route exact path={`${match.url}/general`} component={GeneralInfo}/>
+            <Route exact path={`${match.url}/doctors`} component={Doctors}/>
+            <Route exact path={`${match.url}/doctors/:id`} component={DoctorProfile}/>
+            <Route exact path={`${match.url}/services`} component={Services}/>
+            <Route exact path={`${match.url}/articles`} component={Articles} />            
+            <Route exact path={`${match.url}/sections`} component={Sections} />            
           </div>
           {/* <AppFooter /> */}
         </div>
