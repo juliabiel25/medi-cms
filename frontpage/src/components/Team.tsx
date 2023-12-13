@@ -17,8 +17,10 @@ const Team = () => {
                               <img src="images/team-image1.jpg" className="img-responsive" alt="" />
 
                                    <div className="team-info">
-                                        <h3>Nate Baston</h3>
-                                        <p>General Principal</p>
+                                        <a href="/doctor/1">
+                                             <h3>Nate Baston</h3>
+                                             <p>General Principal</p>
+                                        </a>
                                         <div className="team-contact-info">
                                              <p><i className="fa fa-phone"></i> 010-020-0120</p>
                                              <p><i className="fa fa-envelope-o"></i> <a href="#">general@company.com</a></p>
@@ -37,8 +39,10 @@ const Team = () => {
                               <img src="images/team-image2.jpg" className="img-responsive" alt="" />
 
                                    <div className="team-info">
-                                        <h3>Jason Stewart</h3>
-                                        <p>Pregnancy</p>
+                                        <a href="/doctor/2">
+                                             <h3>Jason Stewart</h3>
+                                             <p>Pregnancy</p>
+                                        </a>
                                         <div className="team-contact-info">
                                              <p><i className="fa fa-phone"></i> 010-070-0170</p>
                                              <p><i className="fa fa-envelope-o"></i> <a href="#">pregnancy@company.com</a></p>
@@ -58,8 +62,10 @@ const Team = () => {
                               <img src="images/team-image3.jpg" className="img-responsive" alt="" />
 
                                    <div className="team-info">
-                                        <h3>Miasha Nakahara</h3>
-                                        <p>Cardiology</p>
+                                        <a href="/doctor/3">
+                                             <h3>Miasha Nakahara</h3>
+                                             <p>Cardiology</p>
+                                        </a>
                                         <div className="team-contact-info">
                                              <p><i className="fa fa-phone"></i> 010-040-0140</p>
                                              <p><i className="fa fa-envelope-o"></i> <a href="#">cardio@company.com</a></p>
@@ -73,6 +79,12 @@ const Team = () => {
                          </div>
                     </div>
                     
+               </div>
+               
+               <div style={{width: '100%', display: "flex", marginTop: "20px", justifyContent: "center"}}>
+                    <button id="cf-submit" name="meet" style={{height: "40px", width: "200px", backgroundColor: "#A5C422", borderWidth: "0px", color: 'white', borderRadius: "3px", fontWeight: "600"}}>
+                         Meet them
+                    </button>
                </div>
           </div>
      </section>

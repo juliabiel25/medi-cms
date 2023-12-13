@@ -9,7 +9,7 @@ import Spinner from '../components/Spinner';
 import Team from '../components/Team';
 
 const Main = () => {
-  return(
+  return (
     <div id="main-page">
       <Spinner />
       <Header />

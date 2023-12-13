@@ -1,5 +1,9 @@
 const AppointmentForm = () => {
-  return (
+     function submit () {
+          console.log("elo")
+     }
+
+return (
     <section id="appointment" data-stellar-background-ratio="3">
           <div className="container">
                <div className="row">
@@ -48,7 +52,9 @@ const AppointmentForm = () => {
                                         <input type="tel" className="form-control" id="phone" name="phone" placeholder="Phone"/>
                                         <label htmlFor="Message">Additional Message</label>
                                         <textarea className="form-control" rows={5} id="message" name="message" placeholder="Message"></textarea>
-                                        <button type="submit" className="form-control" id="cf-submit" name="submit">Submit Button</button>
+                                        <button type="submit" className="form-control" id="cf-submit" name="submit">
+                                             Submit Button
+                                        </button>
                                    </div>
                               </div>
                         </form>

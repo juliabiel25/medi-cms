@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const Header = () => {
   return (
          <header>
@@ -9,9 +11,25 @@ const Header = () => {
                     </div>
                          
                     <div className="col-md-8 col-sm-7 text-align-right">
-                         <span className="phone-icon"><i className="fa fa-phone"></i> 010-060-0160</span>
+                         <span
+                              className="phone-icon"
+                              onClick={() => window.open('tel:900300400')}
+                         >
+                              <i className="fa fa-phone"></i>
+                              010-060-0160
+                         </span>
                          <span className="date-icon"><i className="fa fa-calendar-plus-o"></i> 6:00 AM - 10:00 PM (Mon-Fri)</span>
-                         <span className="email-icon"><i className="fa fa-envelope-o"></i> <a href="#">info@company.com</a></span>
+                         <Link
+                              to='#'
+                              onClick={(e: any) => {
+                                   window.location.href = "mailto:info@company.com";
+                                   e.preventDefault();
+                              }}
+                              className="email-icon"
+                         >
+                              <i className="fa fa-envelope-o" style={{marginRight: "5px", marginLeft: "10px"}}></i>
+                              <a>info@company.com</a>
+                         </Link>
                     </div>
 
                </div>

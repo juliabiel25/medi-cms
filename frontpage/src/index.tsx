@@ -5,10 +5,13 @@ import {
   createBrowserRouter,
 } from "react-router-dom";
 
-import Article from './pages/Article';
 import Main from './pages/Main';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import ArticlePage from './pages/ArticlePage';
+import ArticlesPage from './pages/ArticlesPage';
+import DoctorPage from './pages/Doctor';
+import DoctorsPage from './pages/Doctors';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -20,9 +23,21 @@ const router = createBrowserRouter([
     element: <Main />,
   },
   {
-    path: "/article/:articleId",
-    element: <Article />,
+    path: "/articles/",
+    element: <ArticlesPage />,
   },
+  {
+    path: "/articles/:articleId",
+    element: <ArticlePage />,
+  },
+  {
+    path: "/doctors/:doctorId",
+    element: <DoctorsPage/>
+  },
+  {
+    path: "/doctors/:doctorId",
+    element: <DoctorPage/>
+  }
 ]);
 
 root.render(

@@ -75,6 +75,12 @@ const News = () => {
                     </div>
 
                </div>
+
+               <div style={{width: '100%', display: "flex", marginTop: "20px", justifyContent: "center"}}>
+                    <button id="cf-submit" name="meet" style={{height: "40px", width: "200px", backgroundColor: "#A5C422", borderWidth: "0px", color: 'white', borderRadius: "3px", fontWeight: "600"}}>
+                         Read more
+                    </button>
+               </div>
           </div>
      </section>
   )
