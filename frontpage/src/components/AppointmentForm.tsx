@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 const AppointmentForm = () => {
      function submit () {
           console.log("elo")

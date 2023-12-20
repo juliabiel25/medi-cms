@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import Map from '../components/Map';
 import Spinner from '../components/Spinner';
 import TeamHorizontal from '../components/TeamHorizontal';
+import * as React from 'react';
 
 const DoctorsPage = () => {
   return (

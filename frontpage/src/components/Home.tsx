@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 const Home = () => {
   return (
     <section id="home" className="slider" data-stellar-background-ratio="0.5">

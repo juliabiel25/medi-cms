@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 const Footer = () => {
   return (
     <footer data-stellar-background-ratio="5">

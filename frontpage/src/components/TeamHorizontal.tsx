@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 const TeamHorizontal = () => {
   return (
     <section id="team" data-stellar-background-ratio="1">

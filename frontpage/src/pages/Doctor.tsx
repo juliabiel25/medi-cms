@@ -7,6 +7,7 @@ import Map from '../components/Map';
 import News from '../components/News';
 import Spinner from '../components/Spinner';
 import Team from '../components/Team';
+import * as React from 'react';
 
 const DoctorPage = () => {
   return (

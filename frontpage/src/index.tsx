@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 
 import Main from './pages/Main';
-import React from 'react';
+import * as React from 'react';
 import ReactDOM from 'react-dom/client';
 import ArticlePage from './pages/ArticlePage';
 import ArticlesPage from './pages/ArticlesPage';

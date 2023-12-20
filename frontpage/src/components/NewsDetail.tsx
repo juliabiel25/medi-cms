@@ -1,4 +1,5 @@
 import NewsThumb from "./NewsThumb";
+import * as React from 'react';
 
 const NewsDetail = () => {
   return (

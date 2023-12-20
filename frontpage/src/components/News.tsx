@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 const News = () => {
   return (
     <section id="news" data-stellar-background-ratio="2.5">

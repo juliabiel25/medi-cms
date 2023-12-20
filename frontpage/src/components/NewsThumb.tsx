@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 const NewsThumb = () => {
   return (
     <div className="news-detail-thumb">

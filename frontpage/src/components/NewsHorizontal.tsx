@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 const NewsHorizontal = () => {
   return (
     <section id="newshorizontal" data-stellar-background-ratio="2.5">
