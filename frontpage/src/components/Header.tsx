@@ -7,7 +7,9 @@ const Header = () => {
                <div className="row">
 
                     <div className="col-md-4 col-sm-5">
-                         <p>Welcome to a Professional Health Care</p>
+                         <a href="/">
+                              <p>Welcome to a Professional Health Care</p>
+                         </a>
                     </div>
                          
                     <div className="col-md-8 col-sm-7 text-align-right">

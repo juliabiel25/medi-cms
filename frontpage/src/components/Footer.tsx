@@ -17,31 +17,6 @@ const Footer = () => {
                     </div>
 
                     <div className="col-md-4 col-sm-4"> 
-                         <div className="footer-thumb"> 
-                              <h4 className="wow fadeInUp" data-wow-delay="0.4s">Latest News</h4>
-                              <div className="latest-stories">
-                                   <div className="stories-image">
-                                        <a href="#"><img src="images/news-image.jpg" className="img-responsive" alt=""/></a>
-                                   </div>
-                                   <div className="stories-info">
-                                        <a href="#"><h5>Amazing Technology</h5></a>
-                                        <span>March 08, 2018</span>
-                                   </div>
-                              </div>
-
-                              <div className="latest-stories">
-                                   <div className="stories-image">
-                                        <a href="#"><img src="images/news-image.jpg" className="img-responsive" alt=""/></a>
-                                   </div>
-                                   <div className="stories-info">
-                                        <a href="#"><h5>New Healing Process</h5></a>
-                                        <span>February 20, 2018</span>
-                                   </div>
-                              </div>
-                         </div>
-                    </div>
-
-                    <div className="col-md-4 col-sm-4"> 
                          <div className="footer-thumb">
                               <div className="opening-hours">
                                    <h4 className="wow fadeInUp" data-wow-delay="0.4s">Opening Hours</h4>
