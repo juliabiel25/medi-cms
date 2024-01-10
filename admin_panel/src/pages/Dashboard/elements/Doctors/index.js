@@ -14,9 +14,10 @@ import {
   Row
 } from 'reactstrap';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { Fragment, useEffect } from "react";
+import { db, getDoctors } from '../../../../firebase';
 
 import DataTable from 'react-data-table-component';
-import { Fragment } from "react";
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
 import avatar1 from "../../../../assets/utils/images/avatars/1.jpg";
 import avatar2 from "../../../../assets/utils/images/avatars/2.jpg";
@@ -24,29 +25,16 @@ import avatar3 from "../../../../assets/utils/images/avatars/3.jpg";
 import avatar4 from "../../../../assets/utils/images/avatars/4.jpg";
 import { color } from "d3-color";
 
+let data = [];
+
 const Doctors = ({}) => {
-    const data = [
-      {
-        firstName: 'Stanisław',
-        lastName: 'Kowalski',
-        specialty: 'Pediatra'
-      },
-      {
-        firstName: 'Stanisław',
-        lastName: 'Kowalski',
-        specialty: 'Pediatra'
-      },
-      {
-        firstName: 'Stanisław',
-        lastName: 'Kowalski',
-        specialty: 'Pediatra'
-      },
-      {
-        firstName: 'Stanisław',
-        lastName: 'Kowalski',
-        specialty: 'Pediatra'
-      }
-    ]
+  useEffect( () => {
+    const fetchData = async () => {
+      data = await getDoctors(db)
+    };
+    fetchData();
+    console.log(data)
+  }, [])
   
     return (
     <Fragment>
@@ -70,7 +58,7 @@ const Doctors = ({}) => {
                               </div>
                             </div>
                             <div>
-                              <h5 className="menu-header-title">{doctor.firstName} {doctor.lastName}</h5>
+                              <h5 className="menu-header-title">{doctor.name} {doctor.surname}</h5>
                               <h6 className="menu-header-subtitle">
                                 {doctor.specialty}
                               </h6>
