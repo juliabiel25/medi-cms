@@ -1,5 +1,6 @@
 import About from '../components/About';
 import AppointmentForm from '../components/AppointmentForm';
+import DoctorDetail from '../components/DoctorDetail';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import Home from '../components/Home';
@@ -14,8 +15,7 @@ const DoctorPage = () => {
     <div id="doctor-page">
       <Spinner />
       <Header />
-      <Home />
-      <About />
+      <DoctorDetail />
       <Map />
       <Footer />
     </div>

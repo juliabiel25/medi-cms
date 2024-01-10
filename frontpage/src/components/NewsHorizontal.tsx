@@ -13,14 +13,14 @@ const NewsHorizontal = () => {
                     </div>
 
                     <div className="col-sm-12">
-                         <a href="/articles/1">
+                         <a href="/articlesOne">
                               <div className="news-thumb wow fadeInUp" data-wow-delay="0.4s" style={{display: 'flex', flexDirection: "row"}}>
                                    <a href="news-detail.html" style={{width: '30%'}}>
                                         <img src="images/news-image1.jpg" className="img-responsive" alt=""/>
                                    </a>
                                    <div className="news-info" style={{width: "70%"}}>
                                         <span>March 08, 2018</span>
-                                        <h3><a href="news-detail.html">About Amazing Technology</a></h3>
+                                        <h3>About Amazing Technology</h3>
                                         <p>Maecenas risus neque, placerat volutpat tempor ut, vehicula et felis.</p>
                                         <div className="author">
                                              <img src="images/author-image.jpg" className="img-responsive" alt=""/>
@@ -35,14 +35,14 @@ const NewsHorizontal = () => {
                     </div>
 
                     <div className="col-sm-12">
-                         <a href="/articles/1">
+                         <a href="/articlesOne">
                               <div className="news-thumb wow fadeInUp" data-wow-delay="0.6s" style={{display: 'flex', flexDirection: "row"}}>
                                    <a href="news-detail.html" style={{width: '30%'}}>
                                         <img src="images/news-image2.jpg" className="img-responsive" alt=""/>
                                    </a>
                                    <div className="news-info" style={{width: "70%"}}>
                                         <span>February 20, 2018</span>
-                                        <h3><a href="news-detail.html">Introducing a new healing process</a></h3>
+                                        <h3>Introducing a new healing process</h3>
                                         <p>Fusce vel sem finibus, rhoncus massa non, aliquam velit. Nam et est ligula.</p>
                                         <div className="author">
                                              <img src="images/author-image.jpg" className="img-responsive" alt=""/>
@@ -57,14 +57,14 @@ const NewsHorizontal = () => {
                     </div>
 
                     <div className="col-sm-12">
-                         <a href="/articles/1">
+                         <a href="/articlesOne">
                               <div className="news-thumb wow fadeInUp" data-wow-delay="0.8s" style={{display: 'flex', flexDirection: "row"}}>
                                    <a href="news-detail.html" style={{width: '30%'}}>
                                         <img src="images/news-image3.jpg" className="img-responsive" alt=""/>
                                    </a>
                                    <div className="news-info" style={{width: "70%"}}>
                                         <span>January 27, 2018</span>
-                                        <h3><a href="news-detail.html">Review Annual Medical Research</a></h3>
+                                        <h3>Review Annual Medical Research</h3>
                                         <p>Vivamus non nulla semper diam cursus maximus. Pellentesque dignissim.</p>
                                         <div className="author">
                                              <img src="images/author-image.jpg" className="img-responsive" alt=""/>

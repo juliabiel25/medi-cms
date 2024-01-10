@@ -15,7 +15,7 @@ const TeamHorizontal = () => {
           <div className="clearfix"></div>
 
           <div className="col-md-4 col-sm-6">
-            <a href="/doctors/1">
+            <a href="/doctorsOne">
               <div className="team-thumb wow fadeInUp" data-wow-delay="0.2s">
                 <img src="images/team-image1.jpg" className="img-responsive" alt="" />
 
@@ -37,7 +37,7 @@ const TeamHorizontal = () => {
           </div>
 
           <div className="col-md-4 col-sm-6">
-            <a href="/doctors/1">
+            <a href="/doctorsOne">
               <div className="team-thumb wow fadeInUp" data-wow-delay="0.4s">
                 <img src="images/team-image2.jpg" className="img-responsive" alt="" />
 
@@ -62,7 +62,7 @@ const TeamHorizontal = () => {
           </div>
 
           <div className="col-md-4 col-sm-6">
-            <a href="/doctors/1">
+            <a href="/doctorsOne">
               <div className="team-thumb wow fadeInUp" data-wow-delay="0.6s">
                 <img src="images/team-image3.jpg" className="img-responsive" alt="" />
 
