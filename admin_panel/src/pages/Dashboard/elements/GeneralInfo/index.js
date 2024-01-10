@@ -1,11 +1,39 @@
 import { Button, Card, CardBody, CardTitle, Col, Container, Form, FormGroup, Input, Label, Row } from 'reactstrap';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import { Fragment, useEffect, useState } from "react";
+import { ref as dbRef, onValue } from 'firebase/database';
+import { dbStore, getGeneralInfo } from '../../../../firebase';
 
-import { Fragment } from "react";
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
 
 const GeneralInfo = ({}) => {
-    return (
+  const [info, setInfo] = useState({});
+  
+  useEffect(() => {    
+    // const query = dbRef(db, "general_information");
+
+    async function fetchData() {
+      const fetched = await getGeneralInfo(dbStore);
+      console.log('fetched:', fetched);
+      setInfo(fetched);
+    }
+    fetchData();
+    
+    // return onValue(query, (snapshot) => {
+    //   const data = snapshot.val();
+    //   console.log('data: ', data)
+
+    //   if (snapshot.exists()) {
+    //     Object.values(data).map((d) => {
+    //       setInfo(d);
+    //     });
+    //   }
+    // });
+    
+
+  }, [])
+
+  return (
     <Fragment>
       <TransitionGroup>
         <CSSTransition component="div" classNames="TabsAnimation" appear={true}
