@@ -15,14 +15,14 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const dbStore = getFirestore(app);
-// export const db = getDatabase(app)
+export const db = getDatabase(app)
 
 // Get a list of cities from your database
-export async function getGeneralInfo(db) {
-  const citiesCol = collection(db, 'doctors');
-  const citySnapshot = await getDocs(citiesCol);
-  const cityList = citySnapshot.docs.map(doc => doc.data());
-  return cityList;
+export async function getData(db, collectionName) {
+  const col = collection(db, collectionName);
+  const snapshot = await getDocs(col);
+  const dataArr = snapshot.docs.map(doc => doc.data());
+  return dataArr;
 }
 
 // Get a list of cities from your database

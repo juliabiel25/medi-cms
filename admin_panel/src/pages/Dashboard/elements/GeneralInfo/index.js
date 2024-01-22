@@ -2,33 +2,32 @@ import { Button, Card, CardBody, CardTitle, Col, Container, Form, FormGroup, Inp
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Fragment, useEffect, useState } from "react";
 import { ref as dbRef, onValue } from 'firebase/database';
-import { dbStore, getGeneralInfo } from '../../../../firebase';
+import { dbStore, getData, getGeneralInfo } from '../../../../firebase';
 
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
 
 const GeneralInfo = ({}) => {
   const [info, setInfo] = useState({});
+  const updated = {};
+  const [unsaved, setUnsaved] = useState(false);
+
+  function updateData(field, e) {
+    if (info[field] !== e.target.value) {
+      updated[field] = e.target.value;
+      setUnsaved(true)      
+    }
+    console.log('new value: ', field, e)
+  }
   
   useEffect(() => {    
     // const query = dbRef(db, "general_information");
 
     async function fetchData() {
-      const fetched = await getGeneralInfo(dbStore);
+      const fetched = await getData(dbStore, 'basic_information');
       console.log('fetched:', fetched);
-      setInfo(fetched);
+      setInfo(fetched[0]);
     }
     fetchData();
-    
-    // return onValue(query, (snapshot) => {
-    //   const data = snapshot.val();
-    //   console.log('data: ', data)
-
-    //   if (snapshot.exists()) {
-    //     Object.values(data).map((d) => {
-    //       setInfo(d);
-    //     });
-    //   }
-    // });
     
 
   }, [])
@@ -49,61 +48,61 @@ const GeneralInfo = ({}) => {
                     <Form>
                     <FormGroup>
                       <Label for="name">Nazwa</Label>
-                      <Input type="text" name="name" id="name"/>
+                      <Input type="text" name="name" id="name" defaultValue={info.name} onChange={(e) => updateData('name', e)}/>
                     </FormGroup>
                     <Row>
                       <Col md="8">
                         <FormGroup>
                           <Label for="city">Miasto</Label>
-                          <Input type="text" name="city" id="city"/>
+                          <Input type="text" name="city" id="city" defaultValue={info.city} onChange={(e) => updateData('city', e)}/>
                         </FormGroup>
                       </Col>
                       <Col>
                         <FormGroup>
                           <Label for="postalCode">Kod pocztowy</Label>
-                          <Input type="text" name="postalCode" id="postalCode"/>
+                          <Input type="text" name="postalCode" id="postalCode" defaultValue={info.postalCode} onChange={(e) => updateData('postalCode', e)}/>
                         </FormGroup>
                       </Col>
                     </Row>
                       <FormGroup>
                         <Label for="country">Państwo</Label>
-                        <Input type="text" name="country" id="country"/>
+                        <Input type="text" name="country" id="country" defaultValue={info.country} onChange={(e) => updateData('country', e)}/>
                       </FormGroup>
                     <FormGroup>
                       <Label for="street">Ulica</Label>
-                      <Input type="text" name="street" id="street"/>
+                      <Input type="text" name="street" id="street" defaultValue={info.street} onChange={(e) => updateData('street', e)}/>
                     </FormGroup>
                     <FormGroup>
                       <Label for="buildingNo">Nr budynku</Label>
-                      <Input type="text" name="buildingNo" id="buildingNo"/>
+                      <Input type="text" name="buildingNo" id="buildingNo" defaultValue={info.buildingNumber} onChange={(e) => updateData('buildingNumber', e)}/>
                     </FormGroup>
                     <FormGroup>
                       <Label for="flatNo">Nr lokalu</Label>
-                      <Input type="text" name="flatNo" id="flatNo"/>
+                      <Input type="text" name="flatNo" id="flatNo" defaultValue={info.flatNumber} onChange={(e) => updateData('flatNumber', e)}/>
                     </FormGroup>
                     <FormGroup>
                       <Label for="phoneno">Nr telefonu</Label>
-                      <Input type="tel" name="phoneno" id="phoneno"/>
+                      <Input type="tel" name="phoneno" id="phoneno" defaultValue={info.phoneNumber} onChange={(e) => updateData('phoneNumber', e)}/>
                     </FormGroup>
                     <FormGroup>
                       <Label for="email">E-mail</Label>
-                      <Input type="email" name="email" id="email"/>
+                      <Input type="email" name="email" id="email" defaultValue={info.email} onChange={(e) => updateData('email', e)}/>
                     </FormGroup>                    
                     <FormGroup>
                       <Label for="footerText">Tekst stopki</Label>
-                      <Input type="textarea" name="footerText" id="footerText"/>
+                      <Input type="textarea" name="footerText" id="footerText" defaultValue={info.footerText} onChange={(e) => updateData('footerText', e)}/>
                     </FormGroup>                    
                     <FormGroup>
                       <Label for="fb">Facebook</Label>
-                      <Input type="text" name="fb" id="fb"/>
+                      <Input type="text" name="fb" id="fb" defaultValue={info.facebookAccount} onChange={(e) => updateData('facebookAccount', e)}/>
                     </FormGroup>                    
                     <FormGroup>
                       <Label for="ig">Instagram</Label>
-                      <Input type="text" name="ig" id="ig"/>
+                      <Input type="text" name="ig" id="ig"  defaultValue={info.instagramAccount} onChange={(e) => updateData('instagramAccount', e)}/>
                     </FormGroup>                    
                     <FormGroup>
                       <Label for="tw">Twitter</Label>
-                      <Input type="text" name="tw" id="tw"/>
+                      <Input type="text" name="tw" id="tw"  defaultValue={info.twitterAccount} onChange={(e) => updateData('twitterAccount', e)}/>
                     </FormGroup>       
                     <Button color="primary" className="mt-1">
                       Submit
