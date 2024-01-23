@@ -1,6 +1,6 @@
 import "./polyfills";
 import "./assets/base.scss";
-import "./assets/custom.scss";
+import "./assets/custom.css";
 
 import * as serviceWorker from "./serviceWorker";
 
