@@ -1,4 +1,4 @@
-import { collection, getDocs, getFirestore } from 'firebase/firestore/lite';
+import { collection, doc, getDocs, getFirestore, updateDoc } from 'firebase/firestore/lite';
 
 import { getDatabase } from 'firebase/database';
 import { initializeApp } from 'firebase/app';
@@ -21,7 +21,7 @@ export const db = getDatabase(app)
 export async function getData(db, collectionName) {
   const col = collection(db, collectionName);
   const snapshot = await getDocs(col);
-  const dataArr = snapshot.docs.map(doc => doc.data());
+  const dataArr = snapshot.docs.map(doc => ({data: doc.data(), ref: doc.ref}));
   return dataArr;
 }
 
@@ -34,3 +34,8 @@ export async function getDoctors(db) {
 }
 
 
+export async function updateDocument(db, ref, data) {
+  const docRef = doc(db, ref.path);
+  await updateDoc(docRef, data).catch(err =>console.error(err));
+
+}
