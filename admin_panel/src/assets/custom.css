@@ -3,3 +3,12 @@
   background-color: beige;
   color: #c28a1b;
 }
+
+input:active.input-unsaved, 
+input:focus.input-unsaved,
+textarea:active.input-unsaved, 
+textarea:focus.input-unsaved {
+  border: 2px solid #c28a1b;
+  background-color: beige;
+  color: #c28a1b;
+}

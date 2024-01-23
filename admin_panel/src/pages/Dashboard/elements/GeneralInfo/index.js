@@ -1,5 +1,3 @@
-import './style.css'
-
 import { Button, Card, CardBody, CardTitle, Col, Container, Form, FormGroup, Input, Label, Row } from 'reactstrap';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Fragment, useEffect, useRef, useState } from "react";
