@@ -29,8 +29,9 @@ const GeneralInfo = ({}) => {
     if (unsaved.length > 0) {      
       const updateData = {};
       unsaved.forEach(field => updateData[field] = updated.current[field]);
+
       
-      await updateDocument(dbStore, 'basic_information', fetchedInfo.ref, updateData);
+      await updateDocument(dbStore, fetchedInfo.ref, updateData);
     }
   }
   

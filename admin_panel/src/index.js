@@ -1,9 +1,9 @@
 import "./polyfills";
 import "./assets/base.scss";
+import "./assets/custom.scss";
 
 import * as serviceWorker from "./serviceWorker";
 
-import { db, getDoctors } from "./firebase";
 import { onValue, ref } from 'firebase/database';
 
 import { HashRouter } from "react-router-dom";
@@ -13,6 +13,7 @@ import { Provider } from "react-redux";
 import React from "react";
 import configureStore from "./config/configureStore";
 import { createRoot } from 'react-dom/client';
+import { db } from "./firebase";
 
 // import { getDoctors } from './firebase.js'
 
