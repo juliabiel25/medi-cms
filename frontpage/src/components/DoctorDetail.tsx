@@ -1,7 +1,10 @@
+import { useAtom } from 'jotai';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { doctorStore } from '../stores/basicInfoStore';
 
 const DoctorDetail = () => {
+  const [doctor, setDoctor] = useAtom(doctorStore)
   return (
     <section id="news-detail" data-stellar-background-ratio="0.5">
       <div className="container">
@@ -39,7 +42,7 @@ const DoctorDetail = () => {
                 >
                   Name:
                 </div>
-                <p style={{ marginLeft: "5px", fontSize: "14pt", marginTop: '0.5%' }}>Adam</p>
+                <p style={{ marginLeft: "5px", fontSize: "14pt", marginTop: '0.5%' }}>{doctor.name}</p>
               </div>
 
               <div
@@ -57,7 +60,7 @@ const DoctorDetail = () => {
                 >
                   Surame:
                 </div>
-                <p style={{ marginLeft: "5px", fontSize: "14pt", marginTop: '0.5%' }}>Kotaczak</p>
+                <p style={{ marginLeft: "5px", fontSize: "14pt", marginTop: '0.5%' }}>{doctor.surname}</p>
               </div>
 
               <div
@@ -75,7 +78,7 @@ const DoctorDetail = () => {
                 >
                   Specialty:
                 </div>
-                <p style={{ marginLeft: "5px", fontSize: "14pt", marginTop: '0.5%' }}>Cardiology</p>
+                <p style={{ marginLeft: "5px", fontSize: "14pt", marginTop: '0.5%' }}>{doctor.specialty}</p>
               </div>
             </div>
           </div>
@@ -84,44 +87,40 @@ const DoctorDetail = () => {
             <div className="news-sidebar">
               <div className="news-tags">
                 <h4>Field of interest</h4>
-                <li><a>Pregnancy</a></li>
-                <li><a>Health</a></li>
-                <li><a>Consultant</a></li>
-                <li><a>Medical</a></li>
-                <li><a>Doctors</a></li>
-                <li><a>Social</a></li>
+                <li><a>{doctor.fieldOfInterest}</a></li>
               </div>
 
               <div className="news-author">
                 <h4>Education</h4>
-                <p>Lorem ipsum dolor sit amet, maecenas eget vestibulum justo imperdiet, wisi risus purus augue vulputate voluptate neque.</p>
+                <p>{doctor.educationInformation}</p>
               </div>
 
               <div className="contact-info">
                 <h4>Contact</h4>
                 <span
                   className="phone-icon"
-                  onClick={() => window.open('tel:900300400')}
+                  onClick={() => window.open(`tel:${doctor.phoneNumber}`)}
                 >
                   <p>
-                    <i className="fa fa-phone"></i>010-070-0170
+                    <i className="fa fa-phone"></i>{doctor.phoneNumber}
                   </p>
                 </span>
+
                 <Link
                   to='#'
                   onClick={(e: any) => {
-                    window.location.href = "mailto:info@company.com";
+                    window.location.href = `mailto:${doctor.email}`;
                     e.preventDefault();
                   }}
                   className="email-icon"
                 >
-                  <p><i className="fa fa-envelope-o"></i>info@doctor.com</p>
+                  <p><i className="fa fa-envelope-o"></i>{doctor.email}</p>
                 </Link>
                 <p>
-                  <i className="fa fa-linkedin"></i><a href="#">info@doctor.com</a>
+                  <i className="fa fa-linkedin"></i><a href={doctor.linkedInAccount}>{doctor.linkedInAccount}</a>
                 </p>
                 <p>
-                  <i className="fa fa-facebook"></i> <a href="#">info@doctor.com</a>
+                  <i className="fa fa-facebook"></i> <a href={doctor.facebookAccount}>{doctor.facebookAccount}</a>
                 </p>
               </div>
             </div>
