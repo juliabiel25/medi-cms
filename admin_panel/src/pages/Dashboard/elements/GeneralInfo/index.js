@@ -1,5 +1,3 @@
-import './style.css'
-
 import { Button, Card, CardBody, CardTitle, Col, Container, Form, FormGroup, Input, Label, Row } from 'reactstrap';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { Fragment, useEffect, useRef, useState } from "react";
@@ -29,15 +27,16 @@ const GeneralInfo = ({}) => {
     if (unsaved.length > 0) {      
       const updateData = {};
       unsaved.forEach(field => updateData[field] = updated.current[field]);
+
       
-      await updateDocument(dbStore, 'basic_information', fetchedInfo.ref, updateData);
+      await updateDocument(dbStore, fetchedInfo.ref, updateData);
     }
   }
   
   useEffect(() => {    
     async function fetchData() {
       const fetched = await getData(dbStore, 'basic_information');
-      console.log('fetched:', fetched);
+      console.log('fetched info:', fetched);
       setFetchedInfo(fetched[0]);
     }
     fetchData();
