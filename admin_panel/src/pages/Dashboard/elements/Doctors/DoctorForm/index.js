@@ -76,7 +76,8 @@ const DoctorForm = ({}) => {
       unsaved.forEach(field => (updateData[field] = updated.current[field]));
 
       await updateDocument(dbStore, fetchedData.ref, updateData);
-      setUnsaved([]);
+      // setUnsaved([]);
+      history.push("/dashboard/doctors");
     }
   }
 
@@ -244,6 +245,8 @@ const DoctorForm = ({}) => {
                         color="primary"
                         className="mt-1"
                         onClick={submitData}
+                        disabled={unsaved.length === 0}
+                        // disabled={}
                       >
                         Zapisz zmiany
                       </Button>

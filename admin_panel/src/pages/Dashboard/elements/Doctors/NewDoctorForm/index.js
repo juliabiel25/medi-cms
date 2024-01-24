@@ -223,6 +223,7 @@ const NewDoctorForm = ({}) => {
                         color="primary"
                         className="mt-1"
                         onClick={submitData}
+                        disabled={unsaved.length === 0}
                       >
                         Zapisz zmiany
                       </Button>
