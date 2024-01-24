@@ -1,60 +1,120 @@
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, DropdownItem, DropdownMenu, DropdownToggle, Row, UncontrolledButtonDropdown } from 'reactstrap';
+import { Button, Tooltip, Card, CardBody, CardHeader, CardTitle, Col, Container, DropdownItem, DropdownMenu, DropdownToggle, Row, UncontrolledButtonDropdown } from 'reactstrap';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
+import {Link, useHistory} from 'react-router-dom';
 
 import DataTable from 'react-data-table-component';
-import { Fragment } from "react";
-import PageTitle from "../../../../Layout/AppMain/PageTitle";
+import { Fragment, useRef, useState, useEffect } from "react";
+import { dbStore, getDataWithReferences } from '../../../../firebase';
+import PageTitleCustom from "../../../../Layout/AppMain/PageTitleCustom";
 
-const Services = ({}) => {
-  const data = [
-    {
-      name: 'Badanie',
-      description: 'Badanie badanie badanie',
-      grossPrice: 240.0,
-      vat: 0.23
-    },
-    {
-      name: 'Badanie',
-      description: 'Badanie badanie badanie',
-      grossPrice: 240.0,
-      vat: 0.23
-    },
-    {
-      name: 'Badanie',
-      description: 'Badanie badanie badanie',
-      grossPrice: 240.0,
-      vat: 0.23
-    },
-    {
-      name: 'Badanie',
-      description: 'Badanie badanie badanie',
-      grossPrice: 240.0,
-      vat: 0.23
-    },
-  ]
+const RowActions = ({row}) => {
+  const [editTooltipOpen, setEditTooltipOpen] = useState(false)
+  const [deleteTooltipOpen, setDeleteTooltipOpen] = useState(false)
+
+  function handleDelete(row) {
+
+  }
+
+  return (
+    <div style={{padding: '0'}}>
+      <Link to={{
+        pathname: '/dashboard/services/edit',
+        state: { service: row }
+      }}>
+        <Button 
+          className="me-1 btn-pill btn-icon-only" 
+          color="primary"
+          id={`${row.data.id}-action-edit`}>
+          <i className="pe-7s-pen btn-icon-wrapper"> </i>
+        </Button>
+        <Tooltip 
+          className="tooltip-light" 
+          placement={"bottom"} 
+          isOpen={editTooltipOpen}
+          target={`${row.data.id}-action-edit`} 
+          toggle={() => setEditTooltipOpen(prev => !prev)}>
+          Edytuj usługę
+        </Tooltip>
+      </Link>
+
+      <Button 
+        className="btn-pill btn-icon-only" 
+        id={`${row.data.id}-action-delete`}
+        color="danger"
+        onClick={handleDelete}>
+        <i className="pe-7s-trash btn-icon-wrapper"> </i>
+      </Button>
+      <Tooltip 
+        className="tooltip-light" 
+        placement={"bottom"} 
+        isOpen={deleteTooltipOpen}
+        target={`${row.data.id}-action-delete`} 
+        toggle={() => setDeleteTooltipOpen(prev => !prev)}>
+        Usuń usługę
+      </Tooltip>
+    </div>
+  )
+}
+
+const Services = ({}) => {  
+  // type:: {data: {}, ref: {}} []
+  const [fetchedData, setFetchedData] = useState([]);
+  const updated = useRef({});
+  const [unsaved, setUnsaved] = useState([]);
+  const history = useHistory();
+  
+  useEffect(() => {    
+    async function fetchData() {
+      const fetched = await getDataWithReferences(dbStore, 'services');
+      console.log('fetched services:', fetched);
+      setFetchedData(fetched);
+    }
+    fetchData();
+  }, [])
 
   const columns = [
     {
+      name: "Akcje",
+      cell: (row, index, column, id) => <RowActions row={row} />,
+      sortable: false,
+      button: true,
+    },
+    {
       name: "Nazwa",
-      selector: row => row.name,
+      selector: row => row.data.name,
       sortable: true,
     },
     {
       name: "Opis",
-      selector: row => row.description,
+      selector: row => row.data.description,
+      sortable: true,
+    },
+    {
+      name: "Lekarz",
+      selector: row => row?.data?.doctorRef?.data?.name + ' ' + row?.data?.doctorRef?.data?.surname,
+      sortable: true,
+    },
+    {
+      name: "Wydział",
+      selector: row => row?.data?.departmentRef?.data?.name,
       sortable: true,
     },
     {
       name: "Cena brutto",
-      selector: row => row.grossPrice,
+      selector: row => row.data.grossPrice,
       sortable: true,
     },
     {
       name: "VAT",
-      selector: row => row.vat,
+      selector: row => row.data.vat,
       sortable: true,
     },
   ]
+
+  function handleAddService () {
+    history.push('/dashboard/services/new')
+    
+  }
   
   return (
     <Fragment>
@@ -62,50 +122,21 @@ const Services = ({}) => {
         <CSSTransition component="div" classNames="TabsAnimation" appear={true}
           timeout={1500} enter={false} exit={false}>
           <div>  
-            <PageTitle heading="Usługi"
-              icon="pe-7s-eyedropper icon-gradient bg-premium-dark"/>
+            <PageTitleCustom heading="Usługi"
+              buttons={[
+                {
+                  name: 'Dodaj usługę',
+                  color: 'success',
+                  onClick: handleAddService,
+                  className: '',
 
+                }
+              ]}
+              icon="pe-7s-eyedropper icon-gradient bg-premium-dark"/>
             <Row>              
-              <Card className="mb-3">
-                {/* <CardHeader className="card-header-tab">
-                  <div className="card-header-title font-size-lg text-capitalize fw-normal">
-                    <i className="header-icon lnr-laptop-phone me-3 text-muted opacity-6"> {" "} </i>
-                    Easy Dynamic Tables
-                  </div>
-                  <div className="btn-actions-pane-right actions-icon-btn">
-                    <UncontrolledButtonDropdown>
-                      <DropdownToggle className="btn-icon btn-icon-only" color="link">
-                        <i className="pe-7s-menu btn-icon-wrapper" />
-                      </DropdownToggle>
-                      <DropdownMenu className="dropdown-menu-right rm-pointers dropdown-menu-shadow dropdown-menu-hover-link">
-                        <DropdownItem header>Header</DropdownItem>
-                        <DropdownItem>
-                          <i className="dropdown-icon lnr-inbox"> </i>
-                          <span>Menus</span>
-                        </DropdownItem>
-                        <DropdownItem>
-                          <i className="dropdown-icon lnr-file-empty"> </i>
-                          <span>Settings</span>
-                        </DropdownItem>
-                        <DropdownItem>
-                          <i className="dropdown-icon lnr-book"> </i>
-                          <span>Actions</span>
-                        </DropdownItem>
-                        <DropdownItem divider />
-                        <div className="p-3 text-end">
-                          <Button className="me-2 btn-shadow btn-sm" color="link">
-                            View Details
-                          </Button>
-                          <Button className="me-2 btn-shadow btn-sm" color="primary">
-                            Action
-                          </Button>
-                        </div>
-                      </DropdownMenu>
-                    </UncontrolledButtonDropdown>
-                  </div>
-                </CardHeader> */}
+              <Card className="mb-3">               
                 <CardBody>
-                <DataTable data={data}
+                <DataTable data={fetchedData}
                     columns={columns}
                     pagination
                     fixedHeader

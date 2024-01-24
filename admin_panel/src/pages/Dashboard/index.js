@@ -10,6 +10,8 @@ import GeneralInfo from './elements/GeneralInfo';
 import { Route } from "react-router-dom";
 import Sections from './elements/Sections';
 import Services from './elements/Services';
+import ServiceForm from './elements/Services/ServiceForm';
+import NewServiceForm from './elements/Services/NewServiceForm';
 import ThemeOptions from "../../Layout/ThemeOptions/";
 
 const Dashboard = ({match}) => {
@@ -25,6 +27,8 @@ const Dashboard = ({match}) => {
             <Route exact path={`${match.url}/doctors`} component={Doctors}/>
             <Route exact path={`${match.url}/doctors/:id`} component={DoctorProfile}/>
             <Route exact path={`${match.url}/services`} component={Services}/>
+            <Route exact path={`${match.url}/services/edit`} component={ServiceForm} />            
+            <Route exact path={`${match.url}/services/new`} component={NewServiceForm} />            
             <Route exact path={`${match.url}/articles`} component={Articles} />            
             <Route exact path={`${match.url}/sections`} component={Sections} />            
           </div>

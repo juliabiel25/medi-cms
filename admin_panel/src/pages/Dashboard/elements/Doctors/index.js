@@ -14,27 +14,39 @@ import {
   Row
 } from 'reactstrap';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { Fragment, useEffect } from "react";
-import { db, getDoctors } from '../../../../firebase';
+import { Fragment, useEffect, useRef, useState } from "react";
+import { dbStore, getData } from '../../../../firebase';
 
 import DataTable from 'react-data-table-component';
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
+import PageTitleCustom from "../../../../Layout/AppMain/PageTitleCustom";
 import avatar1 from "../../../../assets/utils/images/avatars/1.jpg";
 import avatar2 from "../../../../assets/utils/images/avatars/2.jpg";
 import avatar3 from "../../../../assets/utils/images/avatars/3.jpg";
 import avatar4 from "../../../../assets/utils/images/avatars/4.jpg";
 import { color } from "d3-color";
 
+
 let data = [];
 
-const Doctors = ({}) => {
-  useEffect( () => {
-    const fetchData = async () => {
-      data = await getDoctors(db)
-    };
+const Doctors = ({}) => {  
+  // type:: {data: {}, ref: {}} []
+  const [fetchedData, setFetchedData] = useState([]);
+  const updated = useRef({});
+  const [unsaved, setUnsaved] = useState([]);
+  
+  useEffect(() => {    
+    async function fetchData() {
+      const fetched = await getData(dbStore, 'doctors');
+      console.log('fetched doctors:', fetched);
+      setFetchedData(fetched);
+    }
     fetchData();
-    console.log(data)
   }, [])
+
+  function handleAddDoctor() {
+
+  }
   
     return (
     <Fragment>
@@ -42,11 +54,20 @@ const Doctors = ({}) => {
         <CSSTransition component="div" classNames="TabsAnimation" appear={true}
           timeout={1500} enter={false} exit={false}>
           <div>  
-            <PageTitle heading="Lekarze"
-              icon="pe-7s-users icon-gradient bg-premium-dark"/>
+            <PageTitleCustom heading="Lekarze"
+              icon="pe-7s-users icon-gradient bg-premium-dark" 
+              buttons={[
+                {
+                  name: 'Dodaj lekarza',
+                  className: '',
+                  color: 'success',
+                  onClick: handleAddDoctor
+                },
+                
+              ]}/>
             <Container fluid>
               <Row>
-                {data.map(doctor => (
+                {fetchedData.map(doctor => (
                   <Col sm="12" lg="6" xl="4">
                     <Card className="mb-3 profile-responsive">
                       <div className="dropdown-menu-header">
@@ -58,9 +79,9 @@ const Doctors = ({}) => {
                               </div>
                             </div>
                             <div>
-                              <h5 className="menu-header-title">{doctor.name} {doctor.surname}</h5>
+                              <h5 className="menu-header-title">{doctor.data.name} {doctor.data.surname}</h5>
                               <h6 className="menu-header-subtitle">
-                                {doctor.specialty}
+                                {doctor.data.specialty}
                               </h6>
                             </div>
                           </div>

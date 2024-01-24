@@ -36,7 +36,7 @@ const GeneralInfo = ({}) => {
   useEffect(() => {    
     async function fetchData() {
       const fetched = await getData(dbStore, 'basic_information');
-      console.log('fetched:', fetched);
+      console.log('fetched info:', fetched);
       setFetchedInfo(fetched[0]);
     }
     fetchData();
