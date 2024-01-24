@@ -54,8 +54,7 @@ const GeneralInfo = ({}) => {
       unsaved.forEach(field => (updateData[field] = updated.current[field]));
 
       await updateDocument(dbStore, fetchedInfo.ref, updateData);
-      // fetchData();
-      history.push("dashboard/general");
+      setUnsaved([]);
     }
   }
 

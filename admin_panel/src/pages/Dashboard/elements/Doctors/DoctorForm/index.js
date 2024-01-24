@@ -18,18 +18,29 @@ import {
   getData,
   getDataWithReferences,
   getDocWithReferences,
-  createDocument
+  createDocument,
+  updateDocument
 } from "../../../../../firebase";
 import { useLocation } from "react-router-dom";
 import PageTitle from "../../../../../Layout/AppMain/PageTitle";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const DoctorForm = ({}) => {
+  const { state } = useLocation();
+  const doctor = state?.doctor;
+
+  const [fetchedData, setFetchedData] = useState({ data: {}, ref: null });
   const updated = useRef({});
   const [unsaved, setUnsaved] = useState([]);
   const history = useHistory();
   // const [fetchedDoctors, setFetchedDoctors] = useState([]);
   // const [fetchedDepts, setFetchedDepts] = useState([]);
+
+  async function fetchData() {
+    const fetched = await getDocWithReferences(dbStore, doctor.ref);
+    console.log("fetched service:", fetched);
+    setFetchedData(fetched);
+  }
 
   useEffect(() => {
     // async function fetchDoctors() {
@@ -44,6 +55,7 @@ const DoctorForm = ({}) => {
     // }
     // fetchDoctors();
     // fetchDepartments();
+    fetchData();
   }, []);
 
   function updateData(field, e) {
@@ -63,8 +75,8 @@ const DoctorForm = ({}) => {
       const updateData = {};
       unsaved.forEach(field => (updateData[field] = updated.current[field]));
 
-      await createDocument(dbStore, "doctors", updateData);
-      history.push("/dashboard/doctors");
+      await updateDocument(dbStore, fetchedData.ref, updateData);
+      setUnsaved([]);
     }
   }
 
@@ -81,7 +93,7 @@ const DoctorForm = ({}) => {
         >
           <div>
             <PageTitle
-              heading={"Dodaj nowego lekarza"}
+              heading={"Edytuj dane lekarza"}
               icon="pe-7s-user icon-gradient bg-premium-dark"
             />
             <Container fluid>
@@ -96,6 +108,7 @@ const DoctorForm = ({}) => {
                           type="text"
                           name="name"
                           id="name"
+                          defaultValue={fetchedData.data?.name}
                           className={
                             unsaved.includes("name") ? "input-unsaved" : ""
                           }
@@ -109,6 +122,7 @@ const DoctorForm = ({}) => {
                           type="text"
                           name="surname"
                           id="surname"
+                          defaultValue={fetchedData.data?.surname}
                           className={
                             unsaved.includes("surname") ? "input-unsaved" : ""
                           }
@@ -122,6 +136,7 @@ const DoctorForm = ({}) => {
                           type="text"
                           name="specialty"
                           id="specialty"
+                          defaultValue={fetchedData.data?.specialty}
                           className={
                             unsaved.includes("specialty") ? "input-unsaved" : ""
                           }
@@ -135,6 +150,7 @@ const DoctorForm = ({}) => {
                           type="text"
                           name="phoneNumber"
                           id="phoneNumber"
+                          defaultValue={fetchedData.data?.phoneNumber}
                           className={
                             unsaved.includes("phoneNumber")
                               ? "input-unsaved"
@@ -150,6 +166,7 @@ const DoctorForm = ({}) => {
                           type="email"
                           name="email"
                           id="email"
+                          defaultValue={fetchedData.data?.email}
                           className={
                             unsaved.includes("email") ? "input-unsaved" : ""
                           }
@@ -163,6 +180,7 @@ const DoctorForm = ({}) => {
                           type="text"
                           name="educationInformation"
                           id="educationInformation"
+                          defaultValue={fetchedData.data?.educationInformation}
                           className={
                             unsaved.includes("educationInformation")
                               ? "input-unsaved"
@@ -180,6 +198,7 @@ const DoctorForm = ({}) => {
                           type="text"
                           name="fieldOfInterest"
                           id="fieldOfInterest"
+                          defaultValue={fetchedData.data?.fieldOfInterest}
                           className={
                             unsaved.includes("fieldOfInterest")
                               ? "input-unsaved"
@@ -195,6 +214,7 @@ const DoctorForm = ({}) => {
                           type="text"
                           name="facebookAccount"
                           id="facebookAccount"
+                          defaultValue={fetchedData.data?.facebookAccount}
                           className={
                             unsaved.includes("facebookAccount")
                               ? "input-unsaved"
@@ -210,6 +230,7 @@ const DoctorForm = ({}) => {
                           type="text"
                           name="linkedInAccount"
                           id="linkedInAccount"
+                          defaultValue={fetchedData.data?.linkedInAccount}
                           className={
                             unsaved.includes("linkedInAccount")
                               ? "input-unsaved"

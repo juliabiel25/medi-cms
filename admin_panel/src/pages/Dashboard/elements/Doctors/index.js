@@ -15,7 +15,7 @@ import {
 } from "reactstrap";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { dbStore, getData } from "../../../../firebase";
+import { dbStore, getData, deleteDocument } from "../../../../firebase";
 
 import DataTable from "react-data-table-component";
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
@@ -26,6 +26,7 @@ import avatar3 from "../../../../assets/utils/images/avatars/3.jpg";
 import avatar4 from "../../../../assets/utils/images/avatars/4.jpg";
 import { color } from "d3-color";
 import { useHistory } from "react-router-dom";
+import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
 let data = [];
 
@@ -36,17 +37,24 @@ const Doctors = ({}) => {
   const [unsaved, setUnsaved] = useState([]);
   const history = useHistory();
 
+  async function fetchData() {
+    const fetched = await getData(dbStore, "doctors");
+    console.log("fetched doctors:", fetched);
+    setFetchedData(fetched);
+  }
+
   useEffect(() => {
-    async function fetchData() {
-      const fetched = await getData(dbStore, "doctors");
-      console.log("fetched doctors:", fetched);
-      setFetchedData(fetched);
-    }
     fetchData();
   }, []);
 
   function handleAddDoctor() {
     history.push("/dashboard/doctors/new");
+  }
+
+  async function handleDelete(row, db) {
+    console.log("delete", row);
+    await deleteDocument(db, row.ref);
+    fetchData();
   }
 
   return (
@@ -107,29 +115,44 @@ const Doctors = ({}) => {
                         <ListGroupItem className="p-0">
                           <div className="grid-menu grid-menu-2col">
                             <Row className="g-0">
-                              {/* <Col sm="6"> */}
-                              <div className="p-1">
-                                <Button
-                                  className="btn-icon-vertical btn-transition-text btn-transition btn-transition-alt pt-2 pb-2"
-                                  outline
-                                  color="focus"
-                                >
-                                  <i className="lnr-sun text-primary opacity-7 btn-icon-wrapper mb-2">
-                                    {" "}
-                                  </i>
-                                  Wyświetl profil
-                                </Button>
-                              </div>
-                              {/* </Col> */}
-                              {/* <Col sm="6">
+                              <Col sm="6">
                                 <div className="p-1">
-                                  <Button className="btn-icon-vertical btn-transition-text btn-transition btn-transition-alt pt-2 pb-2"
-                                    outline color="focus">
-                                    <i className="lnr-magic-wand text-primary opacity-7 btn-icon-wrapper mb-2"> {" "} </i>
-                                    View Leads
+                                  <Link
+                                    to={{
+                                      pathname: "/dashboard/doctors/edit",
+                                      state: { doctor: doctor }
+                                    }}
+                                  >
+                                    <Button
+                                      className="btn-icon-vertical btn-transition-text btn-transition btn-transition-alt pt-2 pb-2"
+                                      outline
+                                      color="focus"
+                                    >
+                                      <i className="lnr-sun text-primary opacity-7 btn-icon-wrapper mb-2">
+                                        {" "}
+                                      </i>
+                                      Wyświetl profil
+                                    </Button>
+                                  </Link>
+                                </div>
+                              </Col>
+                              <Col sm="6">
+                                <div className="p-1">
+                                  <Button
+                                    className="btn-icon-vertical btn-transition-text btn-transition btn-transition-alt pt-2 pb-2"
+                                    outline
+                                    color="danger"
+                                    onClick={() =>
+                                      handleDelete(doctor, dbStore)
+                                    }
+                                  >
+                                    <i className="lnr-trash text-primary opacity-7 btn-icon-wrapper mb-2">
+                                      {" "}
+                                    </i>
+                                    Usuń lekarza
                                   </Button>
                                 </div>
-                              </Col> */}
+                              </Col>
                             </Row>
                           </div>
                         </ListGroupItem>
