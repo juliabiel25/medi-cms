@@ -1,11 +1,9 @@
 import {
+  addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
-  addDoc,
-  get,
-  setDoc,
-  deleteDoc,
   getDocs,
   getFirestore,
   updateDoc
@@ -44,7 +42,7 @@ async function getReferencedDocData(referencePath) {
     const docSnapshot = await getDoc(documentRef);
 
     if (docSnapshot.exists()) {
-      return docSnapshot.data();
+      return {...docSnapshot.data(), id: docSnapshot.id};
     } else {
       console.error("Referenced document does not exist");
       return {};
@@ -53,6 +51,14 @@ async function getReferencedDocData(referencePath) {
     console.error("Error fetching referenced document:", error);
     throw error;
   }
+}
+
+// returns false if at least 1 element of the array doesnt have a path property
+function checkArrayForPath(arr) {
+  arr.forEach(el => {
+    if (!el.path) return false;
+  })
+  return true;
 }
 
 // returns false if there was no nested references in the supplied data
@@ -64,7 +70,7 @@ async function embedReferences(db, data) {
   let wasRefNested = false;
   await Promise.all(
     keys.map(async key => {
-      // if there is path then we can assume it's a reference and not just a regular value
+      // assuming: if there is a path then it's a reference and not just a regular value
       if (mergedData[key]?.path) {
         // fetch doc ref data
         const refData = await getReferencedDocData(mergedData[key].path).catch(
@@ -77,6 +83,26 @@ async function embedReferences(db, data) {
         );
         // replace the reference in the original data object with the fetched referenced data
         mergedData[key] = { data: refData, ref: mergedData[key].path };
+        wasRefNested = true;
+      }
+      // alternatively, check for an array of references
+      else if(Array.isArray(mergedData[key]) && checkArrayForPath(mergedData[key])) {
+        // HMM: promise.all within promise.all????? sounds like a bad idea
+        const refArrData = []
+        await Promise.all(
+          mergedData[key].map(async el => {
+            const refData = await getReferencedDocData(el.path).catch(
+              error => {
+                console.error(
+                  'Error while fetching reference document data (embedded array of references)',
+                  error
+                )
+              }
+            );
+            refArrData.push({ data: refData, ref: el })
+          })
+        )
+        mergedData[key] = {data: refArrData}
         wasRefNested = true;
       }
     })
@@ -114,16 +140,19 @@ export async function getDataWithReferences(db, collectionName) {
   return dataArr;
 }
 // Get 1 document together with referenced documents
+// only goes 1 level deep (no recurrency)
 export async function getDocWithReferences(db, docRef) {
   const snapshotData = await getReferencedDocData(docRef.path);
   const data = { ref: docRef, data: snapshotData };
 
-  //fetch referenced data
+  // fetch referenced data
+  // if there were no references in the object -> returns false
   const embedResult = await embedReferences(db, data);
+  
   // if data was embedded -> return the result
   if (embedResult) {
     return { ref: docRef, data: embedResult };
-    // else -> finish return the OG
+  // else -> finish return the OG
   } else {
     return data;
   }

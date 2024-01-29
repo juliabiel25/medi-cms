@@ -5,20 +5,15 @@ import {
   CardTitle,
   Col,
   Container,
-  Form,
-  FormGroup,
-  Input,
-  Label,
   ListGroup,
   ListGroupItem,
   Row
 } from "reactstrap";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { dbStore, getData, deleteDocument } from "../../../../firebase";
+import { dbStore, deleteDocument, getData } from "../../../../firebase";
 
-import DataTable from "react-data-table-component";
-import PageTitle from "../../../../Layout/AppMain/PageTitle";
+import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import PageTitleCustom from "../../../../Layout/AppMain/PageTitleCustom";
 import avatar1 from "../../../../assets/utils/images/avatars/1.jpg";
 import avatar2 from "../../../../assets/utils/images/avatars/2.jpg";
@@ -26,15 +21,10 @@ import avatar3 from "../../../../assets/utils/images/avatars/3.jpg";
 import avatar4 from "../../../../assets/utils/images/avatars/4.jpg";
 import { color } from "d3-color";
 import { useHistory } from "react-router-dom";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
-
-let data = [];
 
 const Doctors = ({}) => {
   // type:: {data: {}, ref: {}} []
   const [fetchedData, setFetchedData] = useState([]);
-  const updated = useRef({});
-  const [unsaved, setUnsaved] = useState([]);
   const history = useHistory();
 
   async function fetchData() {
@@ -84,7 +74,7 @@ const Doctors = ({}) => {
             <Container fluid>
               <Row>
                 {fetchedData.map(doctor => (
-                  <Col sm="12" lg="6" xl="4">
+                  <Col sm="12" lg="6" xl="4" key={`doctor-widget-id-${doctor.data.id}`}>
                     <Card className="mb-3 profile-responsive">
                       <div className="dropdown-menu-header">
                         <div className="dropdown-menu-header-inner bg-white text-dark">
@@ -131,7 +121,7 @@ const Doctors = ({}) => {
                                       <i className="lnr-sun text-primary opacity-7 btn-icon-wrapper mb-2">
                                         {" "}
                                       </i>
-                                      Wyświetl profil
+                                      Wyświetl / Edytuj profil
                                     </Button>
                                   </Link>
                                 </div>

@@ -3,7 +3,6 @@ import {
   Card,
   CardBody,
   CardTitle,
-  Col,
   Container,
   Form,
   FormGroup,
@@ -14,53 +13,81 @@ import {
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Fragment, useEffect, useRef, useState } from "react";
 import {
+  createDocument,
   dbStore,
-  getData,
   getDataWithReferences,
   getDocWithReferences,
-  createDocument,
   updateDocument
 } from "../../../../../firebase";
-import { useLocation } from "react-router-dom";
+
 import PageTitle from "../../../../../Layout/AppMain/PageTitle";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useLocation } from "react-router-dom";
 
 const DoctorForm = ({}) => {
-  const { state } = useLocation();
-  const doctor = state?.doctor;
-
+  const location = useLocation();
+  const state = location?.state;
+  const history = useHistory();
   const [fetchedData, setFetchedData] = useState({ data: {}, ref: null });
+  const [fetchedServices, setFetchedServices] = useState([]);
   const updated = useRef({});
   const [unsaved, setUnsaved] = useState([]);
-  const history = useHistory();
-  // const [fetchedDoctors, setFetchedDoctors] = useState([]);
-  // const [fetchedDepts, setFetchedDepts] = useState([]);
+  const [selectedServices, setSelectedServices] = useState([])
+  
+  useEffect(() => {
+    fetchData();
+    fetchServices();
+  }, []);
+
+  useEffect(() => {
+    setSelectedServices(fetchedData?.data?.services?.data ?? [])           
+  }, [fetchedData]);
+  
+  // if no 'doctor' obejct was detected then you likely reached this page without using the designated UI!
+  // go back to the 'doctors' page
+  if (!state || !state?.doctor) {
+    history.push('/dashboard/doctors');
+    return;
+  }
+  const doctor = state?.doctor;
+  
 
   async function fetchData() {
     const fetched = await getDocWithReferences(dbStore, doctor.ref);
-    console.log("fetched service:", fetched);
+    console.log("fetched doctor:", fetched);
     setFetchedData(fetched);
   }
+    
+  async function fetchServices() {
+    const fetched = await getDataWithReferences(dbStore, "services");
+    console.log("fetched services:", fetched);
+    setFetchedServices(fetched);
+  }
 
-  useEffect(() => {
-    // async function fetchDoctors() {
-    //   const fetched = await getDataWithReferences(dbStore, "doctors");
-    //   console.log("fetched doctors:", fetched);
-    //   setFetchedDoctors(fetched);
-    // }
-    // async function fetchDepartments() {
-    //   const fetched = await getDataWithReferences(dbStore, "departments");
-    //   console.log("fetched departments:", fetched);
-    //   setFetchedDepts(fetched);
-    // }
-    // fetchDoctors();
-    // fetchDepartments();
-    fetchData();
-  }, []);
 
-  function updateData(field, e) {
+
+   function updateData(field, e) {
+    console.log('update field ' + field + ': ', e)  
+      
+    // assume that if "e" doesn't have a .target property = it's actually just the new value to be saved ^^'
+    if (!e.target) {
+      // save field as unsaved
+      if (!unsaved.includes(field)) {
+        setUnsaved(prev => [...prev, field]);
+      }
+      // update the current input state (value to be sent to firestore -- so just a ref or an empty array is needed here)
+      updated.current[field] = e.map(el => el?.ref) ?? [];
+
+      // update the display state for selected items
+      setSelectedServices(e);
+      return;
+    }
+    
     updated.current = { ...updated.current, [field]: e.target.value };
     if (e.target.value) {
+      // save field as unsaved
       if (!unsaved.includes(field)) {
         setUnsaved(prev => [...prev, field]);
       }
@@ -76,7 +103,6 @@ const DoctorForm = ({}) => {
       unsaved.forEach(field => (updateData[field] = updated.current[field]));
 
       await updateDocument(dbStore, fetchedData.ref, updateData);
-      // setUnsaved([]);
       history.push("/dashboard/doctors");
     }
   }
@@ -240,7 +266,23 @@ const DoctorForm = ({}) => {
                           onChange={e => updateData("linkedInAccount", e)}
                         />
                       </FormGroup>
-
+                      
+                      <FormGroup>
+                        <Label for="services">Usługi</Label>
+                        <Select 
+                          id="services"
+                          name="services"
+                          closeMenuOnSelect={false} 
+                          value={selectedServices}
+                          isMulti 
+                          components={makeAnimated()}
+                          options={fetchedServices}
+                          getOptionLabel={option => option?.data.name}
+                          onChange={newValue => updateData("services", newValue)}
+                          getOptionValue={option => option.ref.path}
+                        />                          
+                      </FormGroup>
+                      
                       <Button
                         color="primary"
                         className="mt-1"

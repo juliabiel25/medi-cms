@@ -14,14 +14,14 @@ import {
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Fragment, useEffect, useRef, useState } from "react";
 import {
+  createDocument,
   dbStore,
-  getData,
   getDataWithReferences,
-  getDocWithReferences,
-  createDocument
 } from "../../../../../firebase";
-import { useLocation } from "react-router-dom";
+
 import PageTitle from "../../../../../Layout/AppMain/PageTitle";
+import Select from "react-select";
+import makeAnimated from "react-select/animated";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const NewDoctorForm = ({}) => {
@@ -29,26 +29,40 @@ const NewDoctorForm = ({}) => {
   const [unsaved, setUnsaved] = useState([]);
   const history = useHistory();
   // const [fetchedDoctors, setFetchedDoctors] = useState([]);
-  // const [fetchedDepts, setFetchedDepts] = useState([]);
+  const [fetchedDepartments, setFetchedDepartments] = useState([]);
+  const [fetchedServices, setFetchedServices] = useState([]);
 
+  async function fetchDepartments() {
+    const fetched = await getDataWithReferences(dbStore, "departments");
+    console.log("fetched departments:", fetched);
+    setFetchedDepartments(fetched);
+  }
+  
+  async function fetchServices() {
+    const fetched = await getDataWithReferences(dbStore, "services");
+    console.log("fetched services:", fetched);
+    setFetchedServices(fetched);
+  }
+  
   useEffect(() => {
-    // async function fetchDoctors() {
-    //   const fetched = await getDataWithReferences(dbStore, "doctors");
-    //   console.log("fetched doctors:", fetched);
-    //   setFetchedDoctors(fetched);
-    // }
-    // async function fetchDepartments() {
-    //   const fetched = await getDataWithReferences(dbStore, "departments");
-    //   console.log("fetched departments:", fetched);
-    //   setFetchedDepts(fetched);
-    // }
-    // fetchDoctors();
-    // fetchDepartments();
+    fetchServices();
   }, []);
 
   function updateData(field, e) {
+    // assume that if "e" doesn't have a .target property = it's actually just the new value to be saved ^^'
+    if (!e.target) {
+      // save field as unsaved
+      if (!unsaved.includes(field)) {
+        setUnsaved(prev => [...prev, field]);
+      }
+      // update the current input state
+      updated.current[field] = e;
+      return;
+    }
+    
     updated.current = { ...updated.current, [field]: e.target.value };
     if (e.target.value) {
+      // save field as unsaved
       if (!unsaved.includes(field)) {
         setUnsaved(prev => [...prev, field]);
       }
@@ -95,6 +109,7 @@ const NewDoctorForm = ({}) => {
                         <Input
                           type="text"
                           name="name"
+                          required
                           id="name"
                           className={
                             unsaved.includes("name") ? "input-unsaved" : ""
@@ -108,6 +123,7 @@ const NewDoctorForm = ({}) => {
                         <Input
                           type="text"
                           name="surname"
+                          required
                           id="surname"
                           className={
                             unsaved.includes("surname") ? "input-unsaved" : ""
@@ -121,6 +137,7 @@ const NewDoctorForm = ({}) => {
                         <Input
                           type="text"
                           name="specialty"
+                          required
                           id="specialty"
                           className={
                             unsaved.includes("specialty") ? "input-unsaved" : ""
@@ -135,6 +152,7 @@ const NewDoctorForm = ({}) => {
                           type="text"
                           name="phoneNumber"
                           id="phoneNumber"
+                          required
                           className={
                             unsaved.includes("phoneNumber")
                               ? "input-unsaved"
@@ -149,6 +167,7 @@ const NewDoctorForm = ({}) => {
                         <Input
                           type="email"
                           name="email"
+                          required
                           id="email"
                           className={
                             unsaved.includes("email") ? "input-unsaved" : ""
@@ -163,6 +182,7 @@ const NewDoctorForm = ({}) => {
                           type="text"
                           name="educationInformation"
                           id="educationInformation"
+                          required
                           className={
                             unsaved.includes("educationInformation")
                               ? "input-unsaved"
@@ -217,6 +237,20 @@ const NewDoctorForm = ({}) => {
                           }
                           onChange={e => updateData("linkedInAccount", e)}
                         />
+                      </FormGroup>
+                      <FormGroup>
+                        <Label for="services">Usługi</Label>
+                        <Select 
+                          id="services"
+                          name="services"
+                          closeMenuOnSelect={false} 
+                          components={makeAnimated()}
+                          defaultValue={[]} 
+                          isMulti 
+                          options={fetchedServices}
+                          getOptionLabel={option => option?.data.name}
+                          onChange={newValue => updateData("services", newValue.map(item => item.ref))}/>
+                          
                       </FormGroup>
 
                       <Button
