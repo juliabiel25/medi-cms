@@ -12,12 +12,12 @@ import {
   ListGroup,
   ListGroupItem,
   Row
-} from 'reactstrap';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
+} from "reactstrap";
+import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { dbStore, getData } from '../../../../firebase';
+import { dbStore, getData, deleteDocument } from "../../../../firebase";
 
-import DataTable from 'react-data-table-component';
+import DataTable from "react-data-table-component";
 import PageTitle from "../../../../Layout/AppMain/PageTitle";
 import PageTitleCustom from "../../../../Layout/AppMain/PageTitleCustom";
 import avatar1 from "../../../../assets/utils/images/avatars/1.jpg";
@@ -25,46 +25,62 @@ import avatar2 from "../../../../assets/utils/images/avatars/2.jpg";
 import avatar3 from "../../../../assets/utils/images/avatars/3.jpg";
 import avatar4 from "../../../../assets/utils/images/avatars/4.jpg";
 import { color } from "d3-color";
-
+import { useHistory } from "react-router-dom";
+import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
 let data = [];
 
-const Doctors = ({}) => {  
+const Doctors = ({}) => {
   // type:: {data: {}, ref: {}} []
   const [fetchedData, setFetchedData] = useState([]);
   const updated = useRef({});
   const [unsaved, setUnsaved] = useState([]);
-  
-  useEffect(() => {    
-    async function fetchData() {
-      const fetched = await getData(dbStore, 'doctors');
-      console.log('fetched doctors:', fetched);
-      setFetchedData(fetched);
-    }
+  const history = useHistory();
+
+  async function fetchData() {
+    const fetched = await getData(dbStore, "doctors");
+    console.log("fetched doctors:", fetched);
+    setFetchedData(fetched);
+  }
+
+  useEffect(() => {
     fetchData();
-  }, [])
+  }, []);
 
   function handleAddDoctor() {
-
+    history.push("/dashboard/doctors/new");
   }
-  
-    return (
+
+  async function handleDelete(row, db) {
+    console.log("delete", row);
+    await deleteDocument(db, row.ref);
+    fetchData();
+  }
+
+  return (
     <Fragment>
       <TransitionGroup>
-        <CSSTransition component="div" classNames="TabsAnimation" appear={true}
-          timeout={1500} enter={false} exit={false}>
-          <div>  
-            <PageTitleCustom heading="Lekarze"
-              icon="pe-7s-users icon-gradient bg-premium-dark" 
+        <CSSTransition
+          component="div"
+          classNames="TabsAnimation"
+          appear={true}
+          timeout={1500}
+          enter={false}
+          exit={false}
+        >
+          <div>
+            <PageTitleCustom
+              heading="Lekarze"
+              icon="pe-7s-users icon-gradient bg-premium-dark"
               buttons={[
                 {
-                  name: 'Dodaj lekarza',
-                  className: '',
-                  color: 'success',
+                  name: "Dodaj lekarza",
+                  className: "",
+                  color: "success",
                   onClick: handleAddDoctor
-                },
-                
-              ]}/>
+                }
+              ]}
+            />
             <Container fluid>
               <Row>
                 {fetchedData.map(doctor => (
@@ -79,7 +95,9 @@ const Doctors = ({}) => {
                               </div>
                             </div>
                             <div>
-                              <h5 className="menu-header-title">{doctor.data.name} {doctor.data.surname}</h5>
+                              <h5 className="menu-header-title">
+                                {doctor.data.name} {doctor.data.surname}
+                              </h5>
                               <h6 className="menu-header-subtitle">
                                 {doctor.data.specialty}
                               </h6>
@@ -97,24 +115,44 @@ const Doctors = ({}) => {
                         <ListGroupItem className="p-0">
                           <div className="grid-menu grid-menu-2col">
                             <Row className="g-0">
-                              {/* <Col sm="6"> */}
+                              <Col sm="6">
                                 <div className="p-1">
-                                  <Button className="btn-icon-vertical btn-transition-text btn-transition btn-transition-alt pt-2 pb-2"
-                                    outline color="focus">
-                                    <i className="lnr-sun text-primary opacity-7 btn-icon-wrapper mb-2"> {" "} </i>
-                                    Wyświetl profil
+                                  <Link
+                                    to={{
+                                      pathname: "/dashboard/doctors/edit",
+                                      state: { doctor: doctor }
+                                    }}
+                                  >
+                                    <Button
+                                      className="btn-icon-vertical btn-transition-text btn-transition btn-transition-alt pt-2 pb-2"
+                                      outline
+                                      color="focus"
+                                    >
+                                      <i className="lnr-sun text-primary opacity-7 btn-icon-wrapper mb-2">
+                                        {" "}
+                                      </i>
+                                      Wyświetl profil
+                                    </Button>
+                                  </Link>
+                                </div>
+                              </Col>
+                              <Col sm="6">
+                                <div className="p-1">
+                                  <Button
+                                    className="btn-icon-vertical btn-transition-text btn-transition btn-transition-alt pt-2 pb-2"
+                                    outline
+                                    color="danger"
+                                    onClick={() =>
+                                      handleDelete(doctor, dbStore)
+                                    }
+                                  >
+                                    <i className="lnr-trash text-primary opacity-7 btn-icon-wrapper mb-2">
+                                      {" "}
+                                    </i>
+                                    Usuń lekarza
                                   </Button>
                                 </div>
-                              {/* </Col> */}
-                              {/* <Col sm="6">
-                                <div className="p-1">
-                                  <Button className="btn-icon-vertical btn-transition-text btn-transition btn-transition-alt pt-2 pb-2"
-                                    outline color="focus">
-                                    <i className="lnr-magic-wand text-primary opacity-7 btn-icon-wrapper mb-2"> {" "} </i>
-                                    View Leads
-                                  </Button>
-                                </div>
-                              </Col> */}
+                              </Col>
                             </Row>
                           </div>
                         </ListGroupItem>
@@ -128,7 +166,7 @@ const Doctors = ({}) => {
         </CSSTransition>
       </TransitionGroup>
     </Fragment>
-  )
-}
+  );
+};
 
 export default Doctors;
