@@ -1,6 +1,5 @@
 import {
   Button,
-  Tooltip,
   Card,
   CardBody,
   CardHeader,
@@ -11,18 +10,19 @@ import {
   DropdownMenu,
   DropdownToggle,
   Row,
+  Tooltip,
   UncontrolledButtonDropdown
 } from "reactstrap";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-
-import DataTable from "react-data-table-component";
-import { Fragment, useRef, useState, useEffect } from "react";
 import {
   dbStore,
   deleteDocument,
   getDataWithReferences
 } from "../../../../firebase";
+
+import DataTable from "react-data-table-component";
 import PageTitleCustom from "../../../../Layout/AppMain/PageTitleCustom";
 
 const RowActions = ({ row, db, handleDelete }) => {
@@ -127,7 +127,7 @@ const Services = ({}) => {
       sortable: true
     },
     {
-      name: "Wydział",
+      name: "Oddział",
       selector: row => row?.data?.departmentRef?.data?.name,
       sortable: true
     },

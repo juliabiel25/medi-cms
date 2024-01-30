@@ -111,7 +111,7 @@ async function embedReferences(db, data) {
   return wasRefNested ? mergedData : false;
 }
 
-// Get all documents together with referenced documents
+// Get all documents in a collection - together with referenced documents
 export async function getDataWithReferences(db, collectionName) {
   const col = collection(db, collectionName);
   const snapshot = await getDocs(col);
@@ -139,7 +139,8 @@ export async function getDataWithReferences(db, collectionName) {
   );
   return dataArr;
 }
-// Get 1 document together with referenced documents
+
+// Get 1 specific document together with referenced documents
 // only goes 1 level deep (no recurrency)
 export async function getDocWithReferences(db, docRef) {
   const snapshotData = await getReferencedDocData(docRef.path);
