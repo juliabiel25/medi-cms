@@ -17,9 +17,11 @@ import {
   dbStore,
   getDataWithReferences,
   getDocWithReferences,
-  updateDocument
+  updateDocument,
+  uploadFile
 } from "../../../../../firebase";
 
+import ImageForm from "../../ImageForm";
 import PageTitle from "../../../../../Layout/AppMain/PageTitle";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
@@ -33,44 +35,47 @@ const DoctorForm = ({}) => {
   const [fetchedData, setFetchedData] = useState({ data: {}, ref: null });
   const [fetchedServices, setFetchedServices] = useState([]);
   const updated = useRef({});
+  const imageUpdated = useRef({});
+  const imageFile = useRef({});
+  const [imageURL, setImageURL] = useState();
+  const [imageUnsaved, setImageUnsaved] = useState([]);
   const [unsaved, setUnsaved] = useState([]);
-  const [selectedServices, setSelectedServices] = useState([])
-  
+  const [selectedServices, setSelectedServices] = useState([]);
+  console.log("imageUpdated", imageUpdated);
+  console.log("imageUnsaved", imageUnsaved);
+
   useEffect(() => {
     fetchData();
     fetchServices();
   }, []);
 
   useEffect(() => {
-    setSelectedServices(fetchedData?.data?.services?.data ?? [])           
+    setSelectedServices(fetchedData?.data?.services?.data ?? []);
   }, [fetchedData]);
-  
+
   // if no 'doctor' obejct was detected then you likely reached this page without using the designated UI!
   // go back to the 'doctors' page
   if (!state || !state?.doctor) {
-    history.push('/dashboard/doctors');
+    history.push("/dashboard/doctors");
     return;
   }
   const doctor = state?.doctor;
-  
 
   async function fetchData() {
     const fetched = await getDocWithReferences(dbStore, doctor.ref);
     console.log("fetched doctor:", fetched);
     setFetchedData(fetched);
   }
-    
+
   async function fetchServices() {
     const fetched = await getDataWithReferences(dbStore, "services");
     console.log("fetched services:", fetched);
     setFetchedServices(fetched);
   }
 
+  function updateDoctorData(field, e) {
+    console.log("update field " + field + ": ", e);
 
-
-   function updateData(field, e) {
-    console.log('update field ' + field + ': ', e)  
-      
     // assume that if "e" doesn't have a .target property = it's actually just the new value to be saved ^^'
     if (!e.target) {
       // save field as unsaved
@@ -84,7 +89,7 @@ const DoctorForm = ({}) => {
       setSelectedServices(e);
       return;
     }
-    
+
     updated.current = { ...updated.current, [field]: e.target.value };
     if (e.target.value) {
       // save field as unsaved
@@ -97,12 +102,57 @@ const DoctorForm = ({}) => {
     }
   }
 
-  async function submitData() {
-    if (unsaved.length > 0) {
-      const updateData = {};
-      unsaved.forEach(field => (updateData[field] = updated.current[field]));
+  function updateImageData(field, value) {
+    // if new value is empty --> erase unsaved field styling
+    if (!value) {
+      setImageUnsaved(prev => prev.filter(item => item !== field));
+      return;
+    }
+    // save field as unsaved
+    if (!imageUnsaved.includes(field)) {
+      setImageUnsaved(prev => [...prev, field]);
+    }
+    imageUpdated.current[field] = value;
+  }
 
-      await updateDocument(dbStore, fetchedData.ref, updateData);
+  function updateFile(file) {
+    updateImageData("image", file);
+    imageFile.current = file;
+  }
+
+  async function submitData() {
+    if (unsaved.length > 0 || imageUnsaved.length > 0) {
+      const dataToSubmit = {};
+      unsaved.forEach(field => (dataToSubmit[field] = updated.current[field]));
+
+      // upload image file to storage
+      if (imageFile.current) {
+        const { storageRef, url } = await uploadFile(imageFile.current);
+
+        // create new image document in firestore and save document reference
+        let createDocData = {};
+        if (imageUpdated.current.name)
+          createDocData["name"] = imageUpdated.current.name;
+        if (imageUpdated.current.altName)
+          createDocData["altName"] = imageUpdated.current.altName;
+        if (imageUpdated.current.width)
+          createDocData["width"] = imageUpdated.current.width;
+        if (imageUpdated.current.height)
+          createDocData["height"] = imageUpdated.current.height;
+
+        console.log("createDocData", createDocData);
+        const imageRef = await createDocument(dbStore, "images", {
+          ...createDocData,
+          url
+        });
+        // overwrite image property with document reference
+        dataToSubmit["image"] = imageRef;
+      }
+
+      console.log("dataToSubmit: ", dataToSubmit);
+
+      // create new doctor document
+      await updateDocument(dbStore, doctor.ref, dataToSubmit);
       history.push("/dashboard/doctors");
     }
   }
@@ -120,11 +170,22 @@ const DoctorForm = ({}) => {
         >
           <div>
             <PageTitle
-              heading={"Edytuj dane lekarza"}
+              heading={"Dodaj nowego lekarza"}
               icon="pe-7s-user icon-gradient bg-premium-dark"
             />
             <Container fluid>
               <Row>
+                <Card className="main-card mb-3">
+                  <CardBody>
+                    <CardTitle>Zdjęcie profilowe</CardTitle>
+                    <ImageForm
+                      url={fetchedData?.data?.image?.data?.url}
+                      onUpdate={updateImageData}
+                      onFileUpdate={updateFile}
+                      unsaved={imageUnsaved}
+                    />
+                  </CardBody>
+                </Card>
                 <Card className="main-card mb-3">
                   <CardBody>
                     <CardTitle>Dane osobowe</CardTitle>
@@ -134,12 +195,15 @@ const DoctorForm = ({}) => {
                         <Input
                           type="text"
                           name="name"
+                          required
                           id="name"
-                          defaultValue={fetchedData.data?.name}
+                          defaultValue={fetchedData?.data?.name}
                           className={
                             unsaved.includes("name") ? "input-unsaved" : ""
                           }
-                          onChange={e => updateData("name", e)}
+                          onChange={e =>
+                            updateDoctorData("name", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -148,12 +212,15 @@ const DoctorForm = ({}) => {
                         <Input
                           type="text"
                           name="surname"
+                          defaultValue={fetchedData?.data?.surname}
+                          required
                           id="surname"
-                          defaultValue={fetchedData.data?.surname}
                           className={
                             unsaved.includes("surname") ? "input-unsaved" : ""
                           }
-                          onChange={e => updateData("surname", e)}
+                          onChange={e =>
+                            updateDoctorData("surname", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -162,12 +229,15 @@ const DoctorForm = ({}) => {
                         <Input
                           type="text"
                           name="specialty"
+                          required
                           id="specialty"
-                          defaultValue={fetchedData.data?.specialty}
+                          defaultValue={fetchedData?.data?.specialty}
                           className={
                             unsaved.includes("specialty") ? "input-unsaved" : ""
                           }
-                          onChange={e => updateData("specialty", e)}
+                          onChange={e =>
+                            updateDoctorData("specialty", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -176,14 +246,17 @@ const DoctorForm = ({}) => {
                         <Input
                           type="text"
                           name="phoneNumber"
+                          defaultValue={fetchedData?.data?.phoneNumber}
                           id="phoneNumber"
-                          defaultValue={fetchedData.data?.phoneNumber}
+                          required
                           className={
                             unsaved.includes("phoneNumber")
                               ? "input-unsaved"
                               : ""
                           }
-                          onChange={e => updateData("phoneNumber", e)}
+                          onChange={e =>
+                            updateDoctorData("phoneNumber", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -192,12 +265,15 @@ const DoctorForm = ({}) => {
                         <Input
                           type="email"
                           name="email"
+                          defaultValue={fetchedData?.data?.email}
+                          required
                           id="email"
-                          defaultValue={fetchedData.data?.email}
                           className={
                             unsaved.includes("email") ? "input-unsaved" : ""
                           }
-                          onChange={e => updateData("email", e)}
+                          onChange={e =>
+                            updateDoctorData("email", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -206,14 +282,20 @@ const DoctorForm = ({}) => {
                         <Input
                           type="text"
                           name="educationInformation"
+                          defaultValue={fetchedData?.data?.educationInformation}
                           id="educationInformation"
-                          defaultValue={fetchedData.data?.educationInformation}
+                          required
                           className={
                             unsaved.includes("educationInformation")
                               ? "input-unsaved"
                               : ""
                           }
-                          onChange={e => updateData("educationInformation", e)}
+                          onChange={e =>
+                            updateDoctorData(
+                              "educationInformation",
+                              e.target.value
+                            )
+                          }
                         />
                       </FormGroup>
 
@@ -225,13 +307,15 @@ const DoctorForm = ({}) => {
                           type="text"
                           name="fieldOfInterest"
                           id="fieldOfInterest"
-                          defaultValue={fetchedData.data?.fieldOfInterest}
+                          defaultValue={fetchedData?.data?.fieldOfInterest}
                           className={
                             unsaved.includes("fieldOfInterest")
                               ? "input-unsaved"
                               : ""
                           }
-                          onChange={e => updateData("fieldOfInterest", e)}
+                          onChange={e =>
+                            updateDoctorData("fieldOfInterest", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -240,14 +324,16 @@ const DoctorForm = ({}) => {
                         <Input
                           type="text"
                           name="facebookAccount"
+                          defaultValue={fetchedData?.data?.facebookAccount}
                           id="facebookAccount"
-                          defaultValue={fetchedData.data?.facebookAccount}
                           className={
                             unsaved.includes("facebookAccount")
                               ? "input-unsaved"
                               : ""
                           }
-                          onChange={e => updateData("facebookAccount", e)}
+                          onChange={e =>
+                            updateDoctorData("facebookAccount", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -257,38 +343,45 @@ const DoctorForm = ({}) => {
                           type="text"
                           name="linkedInAccount"
                           id="linkedInAccount"
-                          defaultValue={fetchedData.data?.linkedInAccount}
+                          defaultValue={fetchedData?.data?.linkedInAccount}
                           className={
                             unsaved.includes("linkedInAccount")
                               ? "input-unsaved"
                               : ""
                           }
-                          onChange={e => updateData("linkedInAccount", e)}
+                          onChange={e =>
+                            updateDoctorData("linkedInAccount", e.target.value)
+                          }
                         />
                       </FormGroup>
-                      
+
                       <FormGroup>
                         <Label for="services">Usługi</Label>
-                        <Select 
+                        <Select
                           id="services"
                           name="services"
-                          closeMenuOnSelect={false} 
-                          value={selectedServices}
-                          isMulti 
+                          closeMenuOnSelect={false}
                           components={makeAnimated()}
+                          defaultValue={fetchedData?.data?.services?.data}
+                          isMulti
                           options={fetchedServices}
-                          getOptionLabel={option => option?.data.name}
-                          onChange={newValue => updateData("services", newValue)}
-                          getOptionValue={option => option.ref.path}
-                        />                          
+                          onChange={newValue =>
+                            updateDoctorData(
+                              "services",
+                              newValue.map(item => item.ref)
+                            )
+                          }
+                          getOptionLabel={option => option.data?.name}
+                        />
                       </FormGroup>
-                      
+
                       <Button
                         color="primary"
                         className="mt-1"
                         onClick={submitData}
-                        disabled={unsaved.length === 0}
-                        // disabled={}
+                        disabled={
+                          unsaved.length === 0 && imageUnsaved.length === 0
+                        }
                       >
                         Zapisz zmiany
                       </Button>
@@ -303,5 +396,4 @@ const DoctorForm = ({}) => {
     </Fragment>
   );
 };
-
 export default DoctorForm;

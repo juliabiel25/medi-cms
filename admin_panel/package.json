@@ -139,6 +139,7 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "prettier": "^3.2.4",
     "sass": "^1.68.0",
     "sass-loader": "^13.3.2"
   },

@@ -11,15 +11,16 @@ import {
 } from "reactstrap";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { Fragment, useEffect, useRef, useState } from "react";
-import { dbStore, deleteDocument, getData } from "../../../../firebase";
+import {
+  dbStore,
+  deleteDocument,
+  getData,
+  getDataWithReferences
+} from "../../../../firebase";
 
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import PageTitleCustom from "../../../../Layout/AppMain/PageTitleCustom";
-import avatar1 from "../../../../assets/utils/images/avatars/1.jpg";
-import avatar2 from "../../../../assets/utils/images/avatars/2.jpg";
-import avatar3 from "../../../../assets/utils/images/avatars/3.jpg";
-import avatar4 from "../../../../assets/utils/images/avatars/4.jpg";
-import { color } from "d3-color";
+import defaultProfilePicture from "./defaultProfilePicture.png";
 import { useHistory } from "react-router-dom";
 
 const Doctors = ({}) => {
@@ -28,7 +29,8 @@ const Doctors = ({}) => {
   const history = useHistory();
 
   async function fetchData() {
-    const fetched = await getData(dbStore, "doctors");
+    const fetched = await getDataWithReferences(dbStore, "doctors");
+    // const fetched = await getData(dbStore, "doctors");
     console.log("fetched doctors:", fetched);
     setFetchedData(fetched);
   }
@@ -74,14 +76,25 @@ const Doctors = ({}) => {
             <Container fluid>
               <Row>
                 {fetchedData.map(doctor => (
-                  <Col sm="12" lg="6" xl="4" key={`doctor-widget-id-${doctor.data.id}`}>
+                  <Col
+                    sm="12"
+                    lg="6"
+                    xl="4"
+                    key={`doctor-widget-id-${doctor.data.id}`}
+                  >
                     <Card className="mb-3 profile-responsive">
                       <div className="dropdown-menu-header">
                         <div className="dropdown-menu-header-inner bg-white text-dark">
                           <div className="menu-header-content btn-pane-right">
                             <div className="avatar-icon-wrapper me-3 avatar-icon-xl btn-hover-shine">
                               <div className="avatar-icon rounded">
-                                <img src={avatar2} alt="Avatar 5" />
+                                <img
+                                  src={
+                                    doctor?.data?.image?.data?.url ??
+                                    defaultProfilePicture
+                                  }
+                                  alt="Domyślne zdjęcie profilowe"
+                                />
                               </div>
                             </div>
                             <div>

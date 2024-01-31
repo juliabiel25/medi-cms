@@ -20,9 +20,10 @@ import {
   getDocWithReferences,
   updateDocument
 } from "../../../../../firebase";
-import { useLocation } from "react-router-dom";
+
 import PageTitle from "../../../../../Layout/AppMain/PageTitle";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { useLocation } from "react-router-dom";
 
 const ServiceForm = ({ addService }) => {
   const { state } = useLocation();

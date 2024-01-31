@@ -1,5 +1,6 @@
 import {
   addDoc,
+  col,
   collection,
   deleteDoc,
   doc,
@@ -8,6 +9,7 @@ import {
   getFirestore,
   updateDoc
 } from "firebase/firestore/lite";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 import { getDatabase } from "firebase/database";
 import { initializeApp } from "firebase/app";
@@ -25,6 +27,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const dbStore = getFirestore(app);
 export const db = getDatabase(app);
+const storage = getStorage(app);
+
+// FETCH AN ENTIRE COLLECTION
 
 export async function getData(db, collectionName) {
   const col = collection(db, collectionName);
@@ -36,13 +41,15 @@ export async function getData(db, collectionName) {
   return dataArr;
 }
 
+// FETCH A SINGLE DOCUMENT DATA (WITH SAVED ID) BY DOC REFERENCE PATH
+
 async function getReferencedDocData(referencePath) {
   try {
     const documentRef = doc(dbStore, referencePath);
     const docSnapshot = await getDoc(documentRef);
 
     if (docSnapshot.exists()) {
-      return {...docSnapshot.data(), id: docSnapshot.id};
+      return { ...docSnapshot.data(), id: docSnapshot.id };
     } else {
       console.error("Referenced document does not exist");
       return {};
@@ -57,7 +64,7 @@ async function getReferencedDocData(referencePath) {
 function checkArrayForPath(arr) {
   arr.forEach(el => {
     if (!el.path) return false;
-  })
+  });
   return true;
 }
 
@@ -86,23 +93,24 @@ async function embedReferences(db, data) {
         wasRefNested = true;
       }
       // alternatively, check for an array of references
-      else if(Array.isArray(mergedData[key]) && checkArrayForPath(mergedData[key])) {
+      else if (
+        Array.isArray(mergedData[key]) &&
+        checkArrayForPath(mergedData[key])
+      ) {
         // HMM: promise.all within promise.all????? sounds like a bad idea
-        const refArrData = []
+        const refArrData = [];
         await Promise.all(
           mergedData[key].map(async el => {
-            const refData = await getReferencedDocData(el.path).catch(
-              error => {
-                console.error(
-                  'Error while fetching reference document data (embedded array of references)',
-                  error
-                )
-              }
-            );
-            refArrData.push({ data: refData, ref: el })
+            const refData = await getReferencedDocData(el.path).catch(error => {
+              console.error(
+                "Error while fetching reference document data (embedded array of references)",
+                error
+              );
+            });
+            refArrData.push({ data: refData, ref: el });
           })
-        )
-        mergedData[key] = {data: refArrData}
+        );
+        mergedData[key] = { data: refArrData };
         wasRefNested = true;
       }
     })
@@ -149,18 +157,21 @@ export async function getDocWithReferences(db, docRef) {
   // fetch referenced data
   // if there were no references in the object -> returns false
   const embedResult = await embedReferences(db, data);
-  
+
   // if data was embedded -> return the result
   if (embedResult) {
     return { ref: docRef, data: embedResult };
-  // else -> finish return the OG
+    // else -> finish return the OG
   } else {
     return data;
   }
 }
 
+// SINGLE DOCUMENT OPERATIONS (WITHOUT APPLYING REFERENCES)
+
 export async function deleteDocument(db, ref) {
   const docRef = doc(db, ref.path);
+
   return await deleteDoc(docRef).catch(err => console.error(err));
 }
 
@@ -170,5 +181,24 @@ export async function updateDocument(db, ref, data) {
 }
 
 export async function createDocument(db, collectionName, data) {
+  console.log("create", { db, collectionName, data });
   const docRef = await addDoc(collection(db, collectionName), data);
+  console.log("image doc reference object: ", docRef);
+
+  return docRef;
+}
+
+// STORAGE UPLOAD & DOWNLOAD
+export async function uploadFile(file) {
+  const fileRef = ref(storage, file.name);
+  const snapshot = await uploadBytes(fileRef, file);
+  const downloadURL = await getDownloadURL(snapshot.ref);
+
+  return { storageRef: snapshot.ref, url: downloadURL };
+}
+
+export async function getImageUrlFromDocRef(refPath) {
+  const downloadURL = await getDownloadURL(refPath);
+
+  return downloadURL;
 }

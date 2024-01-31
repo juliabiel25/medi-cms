@@ -17,8 +17,10 @@ import {
   createDocument,
   dbStore,
   getDataWithReferences,
+  uploadFile
 } from "../../../../../firebase";
 
+import ImageForm from "../../ImageForm";
 import PageTitle from "../../../../../Layout/AppMain/PageTitle";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
@@ -26,58 +28,93 @@ import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const NewDoctorForm = ({}) => {
   const updated = useRef({});
+  const imageUpdated = useRef({});
+  const imageFile = useRef({});
   const [unsaved, setUnsaved] = useState([]);
+  const [imageUnsaved, setImageUnsaved] = useState([]);
   const history = useHistory();
-  // const [fetchedDoctors, setFetchedDoctors] = useState([]);
   const [fetchedDepartments, setFetchedDepartments] = useState([]);
   const [fetchedServices, setFetchedServices] = useState([]);
-
   async function fetchDepartments() {
     const fetched = await getDataWithReferences(dbStore, "departments");
     console.log("fetched departments:", fetched);
     setFetchedDepartments(fetched);
   }
-  
+
   async function fetchServices() {
     const fetched = await getDataWithReferences(dbStore, "services");
     console.log("fetched services:", fetched);
     setFetchedServices(fetched);
   }
-  
+
   useEffect(() => {
     fetchServices();
   }, []);
 
-  function updateData(field, e) {
-    // assume that if "e" doesn't have a .target property = it's actually just the new value to be saved ^^'
-    if (!e.target) {
-      // save field as unsaved
-      if (!unsaved.includes(field)) {
-        setUnsaved(prev => [...prev, field]);
-      }
-      // update the current input state
-      updated.current[field] = e;
-      return;
-    }
-    
-    updated.current = { ...updated.current, [field]: e.target.value };
-    if (e.target.value) {
-      // save field as unsaved
-      if (!unsaved.includes(field)) {
-        setUnsaved(prev => [...prev, field]);
-      }
-    } else {
-      // if value was updated back to the original value -> remove field from unsaved
+  function updateDoctorData(field, value) {
+    // if new value is empty --> erase unsaved field styling
+    if (!value) {
       setUnsaved(prev => prev.filter(item => item !== field));
     }
+    // save field as unsaved
+    if (!unsaved.includes(field)) {
+      setUnsaved(prev => [...prev, field]);
+    }
+    updated.current[field] = value;
+  }
+
+  function updateImageData(field, value) {
+    // if new value is empty --> erase unsaved field styling
+    if (!value) {
+      setImageUnsaved(prev => prev.filter(item => item !== field));
+      return;
+    }
+    // save field as unsaved
+    if (!imageUnsaved.includes(field)) {
+      setImageUnsaved(prev => [...prev, field]);
+    }
+    imageUpdated.current[field] = value;
+  }
+
+  function updateFile(file) {
+    updateImageData("image", file);
+    imageFile.current = file;
   }
 
   async function submitData() {
-    if (unsaved.length > 0) {
-      const updateData = {};
-      unsaved.forEach(field => (updateData[field] = updated.current[field]));
+    if (unsaved.length > 0 || imageUnsaved.length > 0) {
+      
+      const dataToSubmit = {};
+      unsaved.forEach(field => (dataToSubmit[field] = updated.current[field]));
 
-      await createDocument(dbStore, "doctors", updateData);
+      // upload image file to storage
+      if (imageFile.current) {
+        const { storageRef, url } = await uploadFile(imageFile.current);
+  
+        // create new image document in firestore and save document reference
+        let createDocData = {};
+        if (imageUpdated.current.name)
+          createDocData["name"] = imageUpdated.current.name;
+        if (imageUpdated.current.altName)
+          createDocData["altName"] = imageUpdated.current.altName;
+        if (imageUpdated.current.width)
+          createDocData["width"] = imageUpdated.current.width;
+        if (imageUpdated.current.height)
+          createDocData["height"] = imageUpdated.current.height;
+  
+        console.log("createDocData", createDocData);
+        const imageRef = await createDocument(dbStore, "images", {
+          ...createDocData,
+          url
+        });    
+        // overwrite image property with document reference
+        dataToSubmit["image"] = imageRef;
+      }
+
+      console.log("dataToSubmit: ", dataToSubmit);
+
+      // create new doctor document
+      await createDocument(dbStore, "doctors", dataToSubmit);
       history.push("/dashboard/doctors");
     }
   }
@@ -102,6 +139,16 @@ const NewDoctorForm = ({}) => {
               <Row>
                 <Card className="main-card mb-3">
                   <CardBody>
+                    <CardTitle>Zdjęcie profilowe</CardTitle>
+                    <ImageForm
+                      onUpdate={updateImageData}
+                      onFileUpdate={updateFile}
+                      unsaved={imageUnsaved}
+                    />
+                  </CardBody>
+                </Card>
+                <Card className="main-card mb-3">
+                  <CardBody>
                     <CardTitle>Dane osobowe</CardTitle>
                     <Form>
                       <FormGroup>
@@ -114,7 +161,9 @@ const NewDoctorForm = ({}) => {
                           className={
                             unsaved.includes("name") ? "input-unsaved" : ""
                           }
-                          onChange={e => updateData("name", e)}
+                          onChange={e =>
+                            updateDoctorData("name", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -128,7 +177,9 @@ const NewDoctorForm = ({}) => {
                           className={
                             unsaved.includes("surname") ? "input-unsaved" : ""
                           }
-                          onChange={e => updateData("surname", e)}
+                          onChange={e =>
+                            updateDoctorData("surname", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -142,7 +193,9 @@ const NewDoctorForm = ({}) => {
                           className={
                             unsaved.includes("specialty") ? "input-unsaved" : ""
                           }
-                          onChange={e => updateData("specialty", e)}
+                          onChange={e =>
+                            updateDoctorData("specialty", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -158,7 +211,9 @@ const NewDoctorForm = ({}) => {
                               ? "input-unsaved"
                               : ""
                           }
-                          onChange={e => updateData("phoneNumber", e)}
+                          onChange={e =>
+                            updateDoctorData("phoneNumber", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -172,7 +227,9 @@ const NewDoctorForm = ({}) => {
                           className={
                             unsaved.includes("email") ? "input-unsaved" : ""
                           }
-                          onChange={e => updateData("email", e)}
+                          onChange={e =>
+                            updateDoctorData("email", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -188,7 +245,12 @@ const NewDoctorForm = ({}) => {
                               ? "input-unsaved"
                               : ""
                           }
-                          onChange={e => updateData("educationInformation", e)}
+                          onChange={e =>
+                            updateDoctorData(
+                              "educationInformation",
+                              e.target.value
+                            )
+                          }
                         />
                       </FormGroup>
 
@@ -205,7 +267,9 @@ const NewDoctorForm = ({}) => {
                               ? "input-unsaved"
                               : ""
                           }
-                          onChange={e => updateData("fieldOfInterest", e)}
+                          onChange={e =>
+                            updateDoctorData("fieldOfInterest", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -220,7 +284,9 @@ const NewDoctorForm = ({}) => {
                               ? "input-unsaved"
                               : ""
                           }
-                          onChange={e => updateData("facebookAccount", e)}
+                          onChange={e =>
+                            updateDoctorData("facebookAccount", e.target.value)
+                          }
                         />
                       </FormGroup>
 
@@ -235,29 +301,39 @@ const NewDoctorForm = ({}) => {
                               ? "input-unsaved"
                               : ""
                           }
-                          onChange={e => updateData("linkedInAccount", e)}
+                          onChange={e =>
+                            updateDoctorData("linkedInAccount", e.target.value)
+                          }
                         />
                       </FormGroup>
+
                       <FormGroup>
                         <Label for="services">Usługi</Label>
-                        <Select 
+                        <Select
                           id="services"
                           name="services"
-                          closeMenuOnSelect={false} 
+                          closeMenuOnSelect={false}
                           components={makeAnimated()}
-                          defaultValue={[]} 
-                          isMulti 
+                          defaultValue={[]}
+                          isMulti
                           options={fetchedServices}
-                          getOptionLabel={option => option?.data.name}
-                          onChange={newValue => updateData("services", newValue.map(item => item.ref))}/>
-                          
+                          onChange={newValue =>
+                            updateDoctorData(
+                              "services",
+                              newValue.map(item => item.ref)
+                            )
+                          }
+                          getOptionLabel={option => option.data.name}
+                        />
                       </FormGroup>
 
                       <Button
                         color="primary"
                         className="mt-1"
                         onClick={submitData}
-                        disabled={unsaved.length === 0}
+                        disabled={
+                          unsaved.length === 0 && imageUnsaved.length === 0
+                        }
                       >
                         Zapisz zmiany
                       </Button>
