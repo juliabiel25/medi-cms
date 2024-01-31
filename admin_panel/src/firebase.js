@@ -175,26 +175,34 @@ export async function deleteDocument(db, ref) {
   return await deleteDoc(docRef).catch(err => console.error(err));
 }
 
-export async function updateDocument(db, ref, data) {
-  const docRef = doc(db, ref.path);
-  await updateDoc(docRef, data).catch(err => console.error(err));
+// export async function updateDocument(db, ref, data) {
+export async function updateDocument(db, collectionName, docId, data) {
+  console.log("update doc: ", { db, collectionName, docId, data });
+  // const docRef = doc(db, collectionName, id);
+  return await updateDoc(doc(db, collectionName, docId), data);
 }
 
 export async function createDocument(db, collectionName, data) {
-  console.log("create", { db, collectionName, data });
+  console.log("create doc: ", { db, collectionName, data });
   const docRef = await addDoc(collection(db, collectionName), data);
-  console.log("image doc reference object: ", docRef);
+  console.log("reference to the created doc: ", docRef);
 
   return docRef;
 }
 
 // STORAGE UPLOAD & DOWNLOAD
 export async function uploadFile(file) {
-  const fileRef = ref(storage, file.name);
-  const snapshot = await uploadBytes(fileRef, file);
-  const downloadURL = await getDownloadURL(snapshot.ref);
+  if (file.name) {
+    const fileRef = ref(storage, `images/${file.name}`);
+    console.log("upload file:", { storageFileRef: fileRef, file: file });
+    const snapshot = await uploadBytes(fileRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
 
-  return { storageRef: snapshot.ref, url: downloadURL };
+    console.log({ downloadURL: downloadURL });
+
+    return { storageRef: snapshot.ref, url: downloadURL };
+  }
+  console.log("DEBUG: there was no file.name to upload");
 }
 
 export async function getImageUrlFromDocRef(refPath) {

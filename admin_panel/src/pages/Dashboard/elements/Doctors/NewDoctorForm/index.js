@@ -83,14 +83,14 @@ const NewDoctorForm = ({}) => {
 
   async function submitData() {
     if (unsaved.length > 0 || imageUnsaved.length > 0) {
-      
       const dataToSubmit = {};
       unsaved.forEach(field => (dataToSubmit[field] = updated.current[field]));
 
       // upload image file to storage
       if (imageFile.current) {
-        const { storageRef, url } = await uploadFile(imageFile.current);
-  
+        const result = await uploadFile(imageFile.current);
+        const url = result?.url;
+
         // create new image document in firestore and save document reference
         let createDocData = {};
         if (imageUpdated.current.name)
@@ -101,12 +101,12 @@ const NewDoctorForm = ({}) => {
           createDocData["width"] = imageUpdated.current.width;
         if (imageUpdated.current.height)
           createDocData["height"] = imageUpdated.current.height;
-  
+
         console.log("createDocData", createDocData);
         const imageRef = await createDocument(dbStore, "images", {
           ...createDocData,
           url
-        });    
+        });
         // overwrite image property with document reference
         dataToSubmit["image"] = imageRef;
       }

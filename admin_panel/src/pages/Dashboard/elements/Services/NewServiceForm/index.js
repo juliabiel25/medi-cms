@@ -29,16 +29,16 @@ import { useLocation } from "react-router-dom";
 
 const NewServiceForm = ({}) => {
   const updated = useRef({});
-  
+
   const [unsaved, setUnsaved] = useState([]);
   // const [fetchedData, setFetchedData] = useState({ data: {}, ref: null });
 
   const [fetchedDoctors, setFetchedDoctors] = useState([]);
   const [selectedDoctors, setSelectedDoctors] = useState([]);
-  
+
   const [fetchedDepts, setFetchedDepts] = useState([]);
-  const [selectedDept, setSelectedDept] = useState({data: {}, ref: null});
-  
+  const [selectedDept, setSelectedDept] = useState({ data: {}, ref: null });
+
   const history = useHistory();
   const location = useLocation();
   const state = location?.state;
@@ -49,7 +49,6 @@ const NewServiceForm = ({}) => {
     fetchDepartments();
   }, []);
 
-  
   // if (!state || !state?.service) {
   //   history.push('/dashboard/services');
   //   return;
@@ -94,7 +93,7 @@ const NewServiceForm = ({}) => {
       updated.current[field] = e;
       return;
     }
-    
+
     updated.current = { ...updated.current, [field]: e.target.value };
     if (e.target.value) {
       // save field as unsaved
@@ -106,7 +105,7 @@ const NewServiceForm = ({}) => {
       setUnsaved(prev => prev.filter(item => item !== field));
     }
   }
-    
+
   async function submitData() {
     if (unsaved.length > 0) {
       const updateData = {};
@@ -190,9 +189,7 @@ const NewServiceForm = ({}) => {
                           name="VAT"
                           id="VAT"
                           className={
-                            unsaved.includes("VAT")
-                              ? "input-unsaved"
-                              : ""
+                            unsaved.includes("VAT") ? "input-unsaved" : ""
                           }
                           onChange={e => updateData("VAT", e)}
                         />
@@ -200,33 +197,42 @@ const NewServiceForm = ({}) => {
 
                       <FormGroup>
                         <Label for="doctors">Lekarze wykonujący</Label>
-                        <Select 
+                        <Select
                           id="doctors"
                           name="doctors"
-                          closeMenuOnSelect={false} 
+                          closeMenuOnSelect={false}
                           value={selectedDoctors}
-                          isMulti 
+                          isMulti
                           components={makeAnimated()}
                           options={fetchedDoctors}
-                          getOptionLabel={option => `${option?.data?.name} ${option?.data?.surname}`}
-                          onChange={newValue => updateData("doctors", newValue.map(item => item.ref))}
+                          getOptionLabel={option =>
+                            `${option?.data?.name} ${option?.data?.surname}`
+                          }
+                          onChange={newValue =>
+                            updateData(
+                              "doctors",
+                              newValue.map(item => item.ref)
+                            )
+                          }
                           getOptionValue={option => option.ref.path}
-                        />                          
+                        />
                       </FormGroup>
 
                       <FormGroup>
                         <Label for="department">Wydział</Label>
-                        <Select 
+                        <Select
                           id="department"
                           name="department"
-                          closeMenuOnSelect={false} 
+                          closeMenuOnSelect={false}
                           value={selectedDoctors}
                           components={makeAnimated()}
                           options={fetchedDepts}
                           getOptionLabel={option => option?.data.name}
-                          onChange={newValue => updateData("department", newValue.ref)}
+                          onChange={newValue =>
+                            updateData("department", newValue.ref)
+                          }
                           getOptionValue={option => option.ref.path}
-                        />                          
+                        />
                       </FormGroup>
 
                       <Button
