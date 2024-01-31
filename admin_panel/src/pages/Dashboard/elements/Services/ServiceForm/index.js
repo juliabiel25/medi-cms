@@ -68,7 +68,11 @@ const ServiceForm = ({ addService }) => {
       const updateData = {};
       unsaved.forEach(field => (updateData[field] = updated.current[field]));
 
-      await updateDocument(dbStore, fetchedData.ref, updateData);
+      await updateDocument(
+        dbStore,
+        ...`${fetchedData.ref}`.split("/"),
+        updateData
+      );
       // history.push("dashboard/services");
       history.goBack();
     }

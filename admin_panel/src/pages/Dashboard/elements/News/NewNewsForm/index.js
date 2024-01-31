@@ -151,7 +151,11 @@ const NewsForm = ({}) => {
       console.log("dataToSubmit: ", dataToSubmit);
 
       // create new doctor document
-      await updateDocument(dbStore, doctor.ref, dataToSubmit);
+      await updateDocument(
+        dbStore,
+        ...`${doctor.ref.path}`.split("/"),
+        dataToSubmit
+      );
       history.push("/dashboard/doctors");
     }
   }

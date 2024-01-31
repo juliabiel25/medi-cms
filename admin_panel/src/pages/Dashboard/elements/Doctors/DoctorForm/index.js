@@ -97,8 +97,8 @@ const DoctorForm = ({}) => {
       return;
     }
 
-    updated.current = { ...updated.current, [field]: e.target.value };
-    if (e.target.value) {
+    updated.current = { ...updated.current, [field]: e };
+    if (e) {
       // save field as unsaved
       if (!unsaved.includes(field)) {
         setUnsaved(prev => [...prev, field]);
@@ -130,6 +130,7 @@ const DoctorForm = ({}) => {
 
   async function submitData() {
     console.log("submit", { unsaved, updated, imageUnsaved, imageUpdated });
+    let createdImageDocRef;
 
     // IF FILE WAS CHANGED -> UPLOAD IT AND CREATE A NEW /IMAGES/ DOC
     if (imageUnsaved.includes("image")) {
@@ -153,12 +154,12 @@ const DoctorForm = ({}) => {
       };
 
       // create a new /images doc
-      const imageDocRef = await createDocument(
+      createdImageDocRef = await createDocument(
         dbStore,
         "images",
         createImageDocumentData
       );
-      console.log("created image doc ref: ", imageDocRef);
+      console.log("created image doc ref: ", createdImageDocRef);
     }
     // IF NO NEW IMAGE WAS ADDED BUT THE IMAGE DATA HAS CHANGED -> UPDATE THE IMAGE DOC
     else if (imageUnsaved.length > 0) {
@@ -171,24 +172,33 @@ const DoctorForm = ({}) => {
       await updateDocument(dbStore, ...pathElems, imageUpdated.current);
     }
 
+    console.log("OWO");
+
     // UPDATE THE DOCTOR'S DOC
     const dataToSubmit = {};
+
+    // save reference to newly created image
+    if (createdImageDocRef) dataToSubmit["image"] = createdImageDocRef;
+
     if (
       unsaved.length > 0 // updated doctor data
     ) {
+      // save changes to personal data
       console.log("updating doctor doc with: ", updated.current);
-
-      // REPLACE THE IMAGE DOC REFERENCE IN THE DOCTOR'S DOC
       unsaved.forEach(field => (dataToSubmit[field] = updated.current[field]));
+    }
 
+    // update changed values
+    console.log("Doctor doc: data to submit", dataToSubmit);
+    if (Object.keys(dataToSubmit).length > 0) {
       // update the doctor document
       await updateDocument(
         dbStore,
         ...`${doctor.current.ref.path}`.split("/"),
         dataToSubmit
       );
-      history.push("/dashboard/doctors");
     }
+    history.push("/dashboard/doctors");
   }
 
   return (
@@ -406,16 +416,13 @@ const DoctorForm = ({}) => {
                           // )}
                           isMulti
                           options={fetchedServices}
-                          onChange={newValue =>
-                            updateDoctorData(
-                              "services",
-                              newValue
-                            )
-                          // onChange={newValue =>
-                          //   updateDoctorData(
-                          //     "services",
-                          //     newValue.map(item => item?.ref)
-                          //   )
+                          onChange={
+                            newValue => updateDoctorData("services", newValue)
+                            // onChange={newValue =>
+                            //   updateDoctorData(
+                            //     "services",
+                            //     newValue.map(item => item?.ref)
+                            //   )
                           }
                           // getOptionValue={option => option.ref}
                           getOptionLabel={option => option.data?.name}
