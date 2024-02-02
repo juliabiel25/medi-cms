@@ -28,7 +28,7 @@ import makeAnimated from "react-select/animated";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { useLocation } from "react-router-dom";
 
-const DoctorForm = ({}) => {
+const NewsForm = ({}) => {
   const location = useLocation();
   const state = location?.state;
   const history = useHistory();
@@ -36,13 +36,11 @@ const DoctorForm = ({}) => {
   const [fetchedServices, setFetchedServices] = useState([]);
   const updated = useRef({});
   const imageUpdated = useRef({});
-  const imageFile = useRef();
-  // const imageFile = useRef({});
+  const imageFile = useRef({});
   const [imageURL, setImageURL] = useState();
   const [imageUnsaved, setImageUnsaved] = useState([]);
   const [unsaved, setUnsaved] = useState([]);
   const [selectedServices, setSelectedServices] = useState([]);
-  const doctor = useRef(state?.doctor);
 
   useEffect(() => {
     fetchData();
@@ -55,13 +53,14 @@ const DoctorForm = ({}) => {
 
   // if no 'doctor' obejct was detected then you likely reached this page without using the designated UI!
   // go back to the 'doctors' page
-  if (!doctor.current) {
+  if (!state || !state?.doctor) {
     history.push("/dashboard/doctors");
     return;
   }
+  const doctor = state?.doctor;
 
   async function fetchData() {
-    const fetched = await getDocWithReferences(dbStore, doctor.current.ref);
+    const fetched = await getDocWithReferences(dbStore, doctor.ref);
     console.log("fetched doctor:", fetched);
     setFetchedData(fetched);
   }
@@ -75,30 +74,22 @@ const DoctorForm = ({}) => {
   function updateDoctorData(field, e) {
     console.log("update field " + field + ": ", e);
 
-    // save field as unsaved
-    if (!unsaved.includes(field)) {
-      setUnsaved(prev => [...prev, field]);
-    }
-
-    // array of references:
-    if (e.constructor === Array) {
-      console.log("New array value:", e);
-      updated.current[field] = e ?? [];
-      console.log(updated.current);
-      // regular data:
-      // } else {
-      //   updated.current[field] = e ?? "";
-      // }
-
+    // assume that if "e" doesn't have a .target property = it's actually just the new value to be saved ^^'
+    if (!e.target) {
+      // save field as unsaved
+      if (!unsaved.includes(field)) {
+        setUnsaved(prev => [...prev, field]);
+      }
       // update the current input state (value to be sent to firestore -- so just a ref or an empty array is needed here)
+      updated.current[field] = e.map(el => el?.ref) ?? [];
 
       // update the display state for selected items
       setSelectedServices(e);
       return;
     }
 
-    updated.current = { ...updated.current, [field]: e };
-    if (e) {
+    updated.current = { ...updated.current, [field]: e.target.value };
+    if (e.target.value) {
       // save field as unsaved
       if (!unsaved.includes(field)) {
         setUnsaved(prev => [...prev, field]);
@@ -110,7 +101,6 @@ const DoctorForm = ({}) => {
   }
 
   function updateImageData(field, value) {
-    console.log("updateImageData: ", field, value);
     // if new value is empty --> erase unsaved field styling
     if (!value) {
       setImageUnsaved(prev => prev.filter(item => item !== field));
@@ -124,81 +114,50 @@ const DoctorForm = ({}) => {
   }
 
   function updateFile(file) {
-    // updateImageData("image", file);
+    updateImageData("image", file);
     imageFile.current = file;
   }
 
   async function submitData() {
-    console.log("submit", { unsaved, updated, imageUnsaved, imageUpdated });
-    let createdImageDocRef;
-
-    // IF FILE WAS CHANGED -> UPLOAD IT AND CREATE A NEW /IMAGES/ DOC
-    if (imageUnsaved.includes("image")) {
-      console.log("Uploading image & creating new image doc");
-
-      const result = await uploadFile(imageFile.current);
-      // const storageRef = result?.storageRef;
-      const url = result?.url;
-      const name = imageFile.current.name;
-
-      const altName = imageUpdated.current["altName"];
-      const width = imageUpdated.current["width"];
-      const height = imageUpdated.current["height"];
-
-      const createImageDocumentData = {
-        name,
-        url,
-        ...(!!altName && { altName }),
-        ...(!!height && { height }),
-        ...(!!width && { width })
-      };
-
-      // create a new /images doc
-      createdImageDocRef = await createDocument(
-        dbStore,
-        "images",
-        createImageDocumentData
-      );
-      console.log("created image doc ref: ", createdImageDocRef);
-    }
-    // IF NO NEW IMAGE WAS ADDED BUT THE IMAGE DATA HAS CHANGED -> UPDATE THE IMAGE DOC
-    else if (imageUnsaved.length > 0) {
-      console.log("updating imageDoc with: ", imageUpdated.current, {
-        dbStore,
-        imgu: imageUpdated.current
-      });
-      const d = doctor.current.data.image.ref;
-      const pathElems = `${d}`.split("/");
-      await updateDocument(dbStore, ...pathElems, imageUpdated.current);
-    }
-
-    console.log("OWO");
-
-    // UPDATE THE DOCTOR'S DOC
-    const dataToSubmit = {};
-
-    // save reference to newly created image
-    if (createdImageDocRef) dataToSubmit["image"] = createdImageDocRef;
-
-    if (
-      unsaved.length > 0 // updated doctor data
-    ) {
-      // save changes to personal data
-      console.log("updating doctor doc with: ", updated.current);
+    if (unsaved.length > 0 || imageUnsaved.length > 0) {
+      const dataToSubmit = {};
       unsaved.forEach(field => (dataToSubmit[field] = updated.current[field]));
-    }
 
-    // update changed values
-    console.log("Doctor doc: data to submit", dataToSubmit);
-    if (Object.keys(dataToSubmit).length > 0) {
-      // update the doctor document
+      // upload image file to storage
+      if (imageFile.current) {
+        const result = await uploadFile(imageFile.current);
+        const url = result?.url;
+
+        // create new image document in firestore and save document reference
+        let createDocData = {};
+        if (imageUpdated.current.name)
+          createDocData["name"] = imageUpdated.current.name;
+        if (imageUpdated.current.altName)
+          createDocData["altName"] = imageUpdated.current.altName;
+        if (imageUpdated.current.width)
+          createDocData["width"] = imageUpdated.current.width;
+        if (imageUpdated.current.height)
+          createDocData["height"] = imageUpdated.current.height;
+
+        console.log("createDocData", createDocData);
+        const imageRef = await createDocument(dbStore, "images", {
+          ...createDocData,
+          url
+        });
+        // overwrite image property with document reference
+        dataToSubmit["image"] = imageRef;
+      }
+
+      console.log("dataToSubmit: ", dataToSubmit);
+
+      // create new doctor document
       await updateDocument(
         dbStore,
-        ...`${doctor.current.ref.path}`.split("/"),
+        ...`${doctor.ref.path}`.split("/"),
         dataToSubmit
       );
+      history.push("/dashboard/doctors");
     }
-    history.push("/dashboard/doctors");
   }
 
   return (
@@ -214,7 +173,7 @@ const DoctorForm = ({}) => {
         >
           <div>
             <PageTitle
-              heading={"Edytuj profil lekarza"}
+              heading={"Dodaj nowego lekarza"}
               icon="pe-7s-user icon-gradient bg-premium-dark"
             />
             <Container fluid>
@@ -227,7 +186,6 @@ const DoctorForm = ({}) => {
                       onUpdate={updateImageData}
                       onFileUpdate={updateFile}
                       unsaved={imageUnsaved}
-                      defaultValues={fetchedData?.data?.image?.data}
                     />
                   </CardBody>
                 </Card>
@@ -404,27 +362,18 @@ const DoctorForm = ({}) => {
                         <Label for="services">Usługi</Label>
                         <Select
                           id="services"
-                          className={
-                            unsaved.includes("services") ? "input-unsaved" : ""
-                          }
                           name="services"
                           closeMenuOnSelect={false}
                           components={makeAnimated()}
                           defaultValue={fetchedData?.data?.services?.data}
-                          // defaultValue={fetchedData?.data?.services?.data.map(
-                          //   el => el.ref
-                          // )}
                           isMulti
                           options={fetchedServices}
-                          onChange={
-                            newValue => updateDoctorData("services", newValue)
-                            // onChange={newValue =>
-                            //   updateDoctorData(
-                            //     "services",
-                            //     newValue.map(item => item?.ref)
-                            //   )
+                          onChange={newValue =>
+                            updateDoctorData(
+                              "services",
+                              newValue.map(item => item.ref)
+                            )
                           }
-                          // getOptionValue={option => option.ref}
                           getOptionLabel={option => option.data?.name}
                         />
                       </FormGroup>
@@ -450,4 +399,4 @@ const DoctorForm = ({}) => {
     </Fragment>
   );
 };
-export default DoctorForm;
+export default NewsForm;

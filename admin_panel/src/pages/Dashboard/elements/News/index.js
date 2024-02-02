@@ -33,8 +33,8 @@ const RowActions = ({ row, db, handleDelete }) => {
     <div style={{ padding: "0" }}>
       <Link
         to={{
-          pathname: "/dashboard/services/edit",
-          state: { service: row }
+          pathname: "/dashboard/news/edit",
+          state: { news: row }
         }}
       >
         <Button
@@ -76,7 +76,7 @@ const RowActions = ({ row, db, handleDelete }) => {
   );
 };
 
-const Services = ({}) => {
+const News = ({}) => {
   // type:: {data: {}, ref: {}} []
   const [fetchedData, setFetchedData] = useState([]);
   const updated = useRef({});
@@ -84,8 +84,8 @@ const Services = ({}) => {
   const history = useHistory();
 
   async function fetchData() {
-    const fetched = await getDataWithReferences(dbStore, "services");
-    console.log("fetched services:", fetched);
+    const fetched = await getDataWithReferences(dbStore, "news");
+    console.log("fetched news:", fetched);
     setFetchedData(fetched);
   }
 
@@ -109,42 +109,25 @@ const Services = ({}) => {
       button: true
     },
     {
-      name: "Nazwa",
-      selector: row => row.data.name,
+      name: "Tytuł",
+      selector: row => row.data.title,
       sortable: true
     },
     {
-      name: "Opis",
-      selector: row => row.data.description,
+      name: "Data",
+      selector: row => row.data.date,
       sortable: true
     },
     {
-      name: "Lekarz",
+      name: "Autor",
       selector: row =>
-        row?.data?.doctorRef?.data?.name +
-        " " +
-        row?.data?.doctorRef?.data?.surname,
-      sortable: true
-    },
-    {
-      name: "Oddział",
-      selector: row => row?.data?.departmentRef?.data?.name,
-      sortable: true
-    },
-    {
-      name: "Cena brutto",
-      selector: row => row.data.grossPrice,
-      sortable: true
-    },
-    {
-      name: "VAT",
-      selector: row => row.data.vat,
+        row?.data?.author?.data?.name + " " + row?.data?.author?.data?.surname,
       sortable: true
     }
   ];
 
-  function handleAddService() {
-    history.push("/dashboard/services/new");
+  function handleAddNews() {
+    history.push("/dashboard/news/new");
   }
 
   return (
@@ -160,12 +143,12 @@ const Services = ({}) => {
         >
           <div>
             <PageTitleCustom
-              heading="Usługi"
+              heading="Artykuły"
               buttons={[
                 {
-                  name: "Dodaj usługę",
+                  name: "Dodaj artykuł",
                   color: "success",
-                  onClick: handleAddService,
+                  onClick: handleAddNews,
                   className: ""
                 }
               ]}
@@ -191,4 +174,4 @@ const Services = ({}) => {
   );
 };
 
-export default Services;
+export default News;

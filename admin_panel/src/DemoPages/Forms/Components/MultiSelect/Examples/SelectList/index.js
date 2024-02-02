@@ -1,6 +1,6 @@
-import React, { Fragment } from "react";
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { Row, Col, Card, CardBody, CardTitle } from "reactstrap";
+import { Card, CardBody, CardTitle, Col, Row } from "reactstrap";
+import React, { Fragment } from "react";
 
 import { Listbox } from "react-widgets";
 

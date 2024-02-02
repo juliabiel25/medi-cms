@@ -1,15 +1,15 @@
 import {
+  addDoc,
+  col,
   collection,
+  deleteDoc,
   doc,
   getDoc,
-  addDoc,
-  get,
-  setDoc,
-  deleteDoc,
   getDocs,
   getFirestore,
   updateDoc
 } from "firebase/firestore/lite";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 import { getDatabase } from "firebase/database";
 import { initializeApp } from "firebase/app";
@@ -27,6 +27,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const dbStore = getFirestore(app);
 export const db = getDatabase(app);
+const storage = getStorage(app);
+
+// FETCH AN ENTIRE COLLECTION
 
 export async function getData(db, collectionName) {
   const col = collection(db, collectionName);
@@ -38,13 +41,15 @@ export async function getData(db, collectionName) {
   return dataArr;
 }
 
+// FETCH A SINGLE DOCUMENT DATA (WITH SAVED ID) BY DOC REFERENCE PATH
+
 async function getReferencedDocData(referencePath) {
   try {
     const documentRef = doc(dbStore, referencePath);
     const docSnapshot = await getDoc(documentRef);
 
     if (docSnapshot.exists()) {
-      return docSnapshot.data();
+      return { ...docSnapshot.data(), id: docSnapshot.id };
     } else {
       console.error("Referenced document does not exist");
       return {};
@@ -53,6 +58,14 @@ async function getReferencedDocData(referencePath) {
     console.error("Error fetching referenced document:", error);
     throw error;
   }
+}
+
+// returns false if at least 1 element of the array doesnt have a path property
+function checkArrayForPath(arr) {
+  arr.forEach(el => {
+    if (!el.path) return false;
+  });
+  return true;
 }
 
 // returns false if there was no nested references in the supplied data
@@ -64,7 +77,7 @@ async function embedReferences(db, data) {
   let wasRefNested = false;
   await Promise.all(
     keys.map(async key => {
-      // if there is path then we can assume it's a reference and not just a regular value
+      // assuming: if there is a path then it's a reference and not just a regular value
       if (mergedData[key]?.path) {
         // fetch doc ref data
         const refData = await getReferencedDocData(mergedData[key].path).catch(
@@ -79,13 +92,34 @@ async function embedReferences(db, data) {
         mergedData[key] = { data: refData, ref: mergedData[key].path };
         wasRefNested = true;
       }
+      // alternatively, check for an array of references
+      else if (
+        Array.isArray(mergedData[key]) &&
+        checkArrayForPath(mergedData[key])
+      ) {
+        // HMM: promise.all within promise.all????? sounds like a bad idea
+        const refArrData = [];
+        await Promise.all(
+          mergedData[key].map(async el => {
+            const refData = await getReferencedDocData(el.path).catch(error => {
+              console.error(
+                "Error while fetching reference document data (embedded array of references)",
+                error
+              );
+            });
+            refArrData.push({ data: refData, ref: el });
+          })
+        );
+        mergedData[key] = { data: refArrData };
+        wasRefNested = true;
+      }
     })
   );
 
   return wasRefNested ? mergedData : false;
 }
 
-// Get all documents together with referenced documents
+// Get all documents in a collection - together with referenced documents
 export async function getDataWithReferences(db, collectionName) {
   const col = collection(db, collectionName);
   const snapshot = await getDocs(col);
@@ -113,13 +147,17 @@ export async function getDataWithReferences(db, collectionName) {
   );
   return dataArr;
 }
-// Get 1 document together with referenced documents
+
+// Get 1 specific document together with referenced documents
+// only goes 1 level deep (no recurrency)
 export async function getDocWithReferences(db, docRef) {
   const snapshotData = await getReferencedDocData(docRef.path);
   const data = { ref: docRef, data: snapshotData };
 
-  //fetch referenced data
+  // fetch referenced data
+  // if there were no references in the object -> returns false
   const embedResult = await embedReferences(db, data);
+
   // if data was embedded -> return the result
   if (embedResult) {
     return { ref: docRef, data: embedResult };
@@ -129,16 +167,46 @@ export async function getDocWithReferences(db, docRef) {
   }
 }
 
+// SINGLE DOCUMENT OPERATIONS (WITHOUT APPLYING REFERENCES)
+
 export async function deleteDocument(db, ref) {
   const docRef = doc(db, ref.path);
+
   return await deleteDoc(docRef).catch(err => console.error(err));
 }
 
-export async function updateDocument(db, ref, data) {
-  const docRef = doc(db, ref.path);
-  await updateDoc(docRef, data).catch(err => console.error(err));
+// export async function updateDocument(db, ref, data) {
+export async function updateDocument(db, collectionName, docId, data) {
+  console.log("update doc: ", { db, collectionName, docId, data });
+  // const docRef = doc(db, collectionName, id);
+  return await updateDoc(doc(db, collectionName, docId), data);
 }
 
 export async function createDocument(db, collectionName, data) {
+  console.log("create doc: ", { db, collectionName, data });
   const docRef = await addDoc(collection(db, collectionName), data);
+  console.log("reference to the created doc: ", docRef);
+
+  return docRef;
+}
+
+// STORAGE UPLOAD & DOWNLOAD
+export async function uploadFile(file) {
+  if (file.name) {
+    const fileRef = ref(storage, `images/${file.name}`);
+    console.log("upload file:", { storageFileRef: fileRef, file: file });
+    const snapshot = await uploadBytes(fileRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+
+    console.log({ downloadURL: downloadURL });
+
+    return { storageRef: snapshot.ref, url: downloadURL };
+  }
+  console.log("DEBUG: there was no file.name to upload");
+}
+
+export async function getImageUrlFromDocRef(refPath) {
+  const downloadURL = await getDownloadURL(refPath);
+
+  return downloadURL;
 }

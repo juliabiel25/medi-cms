@@ -3,17 +3,19 @@ import React, { Fragment } from "react";
 import AppFooter from "../../Layout/AppFooter/";
 import AppHeader from "../../Layout/AppHeader/";
 import AppSidebar from "../../Layout/AppSidebar/";
-import Articles from "./elements/Articles";
+import DoctorForm from "./elements/Doctors/DoctorForm";
 import DoctorProfile from "./elements/DoctorProfile";
 import Doctors from "./elements/Doctors";
 import GeneralInfo from "./elements/GeneralInfo";
+import NewDoctorForm from "./elements/Doctors/NewDoctorForm";
+import NewNewsForm from "./elements/News/NewNewsForm";
+import NewServiceForm from "./elements/Services/NewServiceForm";
+import News from "./elements/News";
+import NewsForm from "./elements/News/NewsForm";
 import { Route } from "react-router-dom";
 import Sections from "./elements/Sections";
-import Services from "./elements/Services";
-import DoctorForm from "./elements/Doctors/DoctorForm";
-import NewDoctorForm from "./elements/Doctors/NewDoctorForm";
 import ServiceForm from "./elements/Services/ServiceForm";
-import NewServiceForm from "./elements/Services/NewServiceForm";
+import Services from "./elements/Services";
 import ThemeOptions from "../../Layout/ThemeOptions/";
 
 const Dashboard = ({ match }) => {
@@ -52,7 +54,13 @@ const Dashboard = ({ match }) => {
               path={`${match.url}/services/new`}
               component={NewServiceForm}
             />
-            <Route exact path={`${match.url}/articles`} component={Articles} />
+            <Route exact path={`${match.url}/news/edit`} component={NewsForm} />
+            <Route
+              exact
+              path={`${match.url}/news/new`}
+              component={NewNewsForm}
+            />
+            <Route exact path={`${match.url}/news`} component={News} />
             <Route exact path={`${match.url}/sections`} component={Sections} />
           </div>
           {/* <AppFooter /> */}
