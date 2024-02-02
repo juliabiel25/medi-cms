@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai';
 import * as React from 'react';
-import { basicInfoStore, hoursStore } from '../stores/basicInfoStore';
+import { basicInfoStore, hoursStore, oneNewsStore } from '../stores/basicInfoStore';
 import { Link } from 'react-router-dom';
 import { useEffect } from 'react';
 import { dbStore } from '../utils/firebase';
@@ -9,7 +9,8 @@ import { Hours } from '../interfaces/interface';
 
 const Footer = () => {
   const [basicInfo, setBasicInfo] = useAtom(basicInfoStore),
-    [hours, setHours] = useAtom(hoursStore);
+    [hours, setHours] = useAtom(hoursStore),
+    [oneNews, setOneNews] = useAtom(oneNewsStore);
   
   useEffect(() => {
     async function getHours(db: any) {
@@ -106,7 +107,7 @@ const Footer = () => {
                 {
                   hours.map((hour) => {
                     return (
-                      <p>{mapDays(hour.dayOfTheWeek)} <span>{hour.openDate} - {hour.closeDate}</span></p>
+                      <p key={hour.dayOfTheWeek}>{mapDays(hour.dayOfTheWeek)} <span>{hour.openDate} - {hour.closeDate}</span></p>
                     )
                   })
                 }

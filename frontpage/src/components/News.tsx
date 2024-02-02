@@ -1,10 +1,11 @@
-import { collection, getDocs } from 'firebase/firestore/lite';
+import { Firestore, collection, doc, getDoc, getDocs } from 'firebase/firestore/lite';
 import * as React from 'react';
 import { useEffect } from 'react';
 import { INews } from '../interfaces/interface';
 import { useAtom } from 'jotai';
-import { newsStore, oneNewsStore } from '../stores/basicInfoStore';
+import { initialNews, newsStore, oneNewsStore } from '../stores/basicInfoStore';
 import { dbStore } from '../utils/firebase';
+import { getDataWithReferences } from '../utils/helpers';
 
 const News = () => {
   const [news, setNews] = useAtom(newsStore),
@@ -12,45 +13,56 @@ const News = () => {
 
   useEffect(() => {
     async function getNews(db: any) {
-      const dataCol = collection(db, 'news');
-      const dataSnapshot = await getDocs(dataCol);
-      const dataList = dataSnapshot.docs.map(doc => doc.data());
-      let reqData = {...dataList};
+      getDataWithReferences(dbStore, 'news').then((data: any) => {                               
+        const newsArray: INews[] = []
 
-      const newsArray: INews[] = []
+        let counter = 1
+        const length = data.length
+        data.map((d: any, index: number) => {
+          if (counter <= 3) {
+            data = {
+              authorRef: {
+                description: d.data.author.data.description,
+                name: d.data.author.data.name,
+                surname: d.data.author.data.surname,
+                position: d.data.author.data.position
+              },
+              categories: {},
+              date: d.data.date,
+              imageRef: d.data.imageRef,
+              text: d.data.text,
+              title: d.data.title,
+              id: index,
+            }
 
-      let counter = 1
-      for (var key in reqData) {
-        let data: INews
-
-        if (counter <= 3) {
-          data = {
-            authorRef: reqData[key].authorRef,
-            categories: reqData[key].categories,
-            date: reqData[key].date,
-            imageRef: reqData[key].imageRef,
-            text: reqData[key].text,
-            title: reqData[key].title,
+            newsArray.push(data)
+            counter++
           }
+        })
 
-          newsArray.push(data)
-          counter++
-        } else break
-      }
-
-      setNews(newsArray)
+          setNews(newsArray)
+      })
     }
 
-    getNews(dbStore).catch(console.error);
+    if (news.length === 0) getNews(dbStore).catch(console.error);
   }, [])
-  
+
+  useEffect(() => {
+    if (oneNews !== initialNews)
+      window.location.href = `/articlesOne?id=${oneNews.id}`;
+  }, [oneNews])
+
+  async function handleNavigation(e: any, newsOn: INews) {
+    e.preventDefault();
+    await setOneNews(newsOn);
+  }
+
   return (
     <section id="news" data-stellar-background-ratio="2.5">
       <div className="container">
         <div className="row">
 
           <div className="col-md-12 col-sm-12">
-            {/* <!-- SECTION TITLE --> */}
             <div className="section-title wow fadeInUp" data-wow-delay="0.1s">
               <h2>Latest News</h2>
             </div>
@@ -59,21 +71,21 @@ const News = () => {
           {
             news.map((oneNews: INews) => {
               return (
-                <div className="col-md-4 col-sm-6">
-                  <a href="/articlesOne" onClick={() => setOneNews(oneNews)}>
+                <div className="col-md-4 col-sm-6" key={oneNews.id}>
+                  <a href="/articlesOne" onClick={(e: any) => handleNavigation(e, oneNews)}>
                     <div className="news-thumb wow fadeInUp" data-wow-delay="0.4s">
-                      <a href="articlesOne">
+                    <div onClick={(e: any) => handleNavigation(e, oneNews)}>
                         <img src="images/news-image1.jpg" className="img-responsive" alt="" />
-                      </a>
+                      </div>
                       <div className="news-info">
                         <span>{oneNews.date}</span>
-                        <h3><a href="articlesOne">{oneNews.title.substring(0, 60)}{oneNews.title.length > 60 ? '...' : ''}</a></h3>
+                        <h3><div>{oneNews.title.substring(0, 60)}{oneNews.title.length > 60 ? '...' : ''}</div></h3>
                         <p>{oneNews.text.substring(0, 120)}{oneNews.text.length > 120 ? '...' : ''}</p>
                         <div className="author">
                           <img src="images/author-image.jpg" className="img-responsive" alt="" />
                           <div className="author-info">
-                            <h5>Jeremie Carlson</h5>
-                            <p>CEO / Founder</p>
+                            <h5>{oneNews.authorRef.name} {oneNews.authorRef.surname}</h5>
+                            <p>{oneNews.authorRef.position}</p>
                           </div>
                         </div>
                       </div>

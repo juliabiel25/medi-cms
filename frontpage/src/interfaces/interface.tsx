@@ -1,3 +1,10 @@
+export interface Author {
+  description: string;
+  name: string;
+  surname: string;
+  position: string;
+}
+
 export interface BasicInfo {
   addressRef: any;
   city: string;
@@ -12,6 +19,7 @@ export interface BasicInfo {
   description: string;
   owner: string;
   ownerPosition: string;
+  locationMap: any
 }
 
 export interface Hours {
@@ -22,12 +30,12 @@ export interface Hours {
 }
 
 export interface Doctor {
+  id: number;
   educationInformation: string;
   email: string;
   facebookAccount: string;
   fieldOfInterest: string;
-  imagePath: string;
-  imageRef: any;
+  imagePath: Image;
   linkedInAccount: string;
   name: string;
   phoneNumber: string;
@@ -43,9 +51,16 @@ export interface Service {
   name: string;
 }
 
+export interface Image {
+  altName: string;
+  name: string;
+  url: string;
+}
+
 export interface INews {
-  authorRef: any;
-  categories: number;
+  id: number;
+  authorRef: Author;
+  categories: string[];
   date: string;
   imageRef: any;
   text: string;

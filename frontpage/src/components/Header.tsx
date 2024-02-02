@@ -33,6 +33,7 @@ const Header = () => {
           description: reqData[key].description,
           owner: reqData[key].owner,
           ownerPosition: reqData[key].ownerPosition,
+          locationMap: reqData[key].locationMap
         }
         setBasicInfo(data)
       }

@@ -1,4 +1,6 @@
+import { useAtom } from 'jotai';
 import * as React from 'react';
+import { basicInfoStore } from '../stores/basicInfoStore';
 
 const Map = () => {
   return (

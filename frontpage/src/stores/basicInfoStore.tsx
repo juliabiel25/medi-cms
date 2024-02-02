@@ -14,38 +14,49 @@ const initialBasicInfo: BasicInfo = {
   twitterAccount: '',
   description: '',
   owner: '',
-  ownerPosition: ''
+  ownerPosition: '',
+  locationMap: undefined
 }
 
 export const basicInfoStore = atom<BasicInfo>(initialBasicInfo)
 
 export const hoursStore = atom<Hours[]>([])
 
-const initialDoctor: Doctor = {
+export const initialDoctor: Doctor = {
   educationInformation: '',
   email: '',
   facebookAccount: '',
   fieldOfInterest: '',
-  imagePath: '',
-  imageRef: undefined,
+  imagePath: {
+    altName: '',
+    name: '',
+    url: ''
+  },
   linkedInAccount: '',
   name: '',
   phoneNumber: '',
   specialty: '',
   surname: '',
-  services: []
+  services: [],
+  id: 0
 }
 
 export const doctorsStore = atom<Doctor[]>([])
 export const doctorStore = atom<Doctor>(initialDoctor)
 
-const initialNews: INews = {
-  authorRef: undefined,
-  categories: 0,
+export const initialNews: INews = {
   date: '',
   imageRef: undefined,
   text: '',
-  title: ''
+  title: '',
+  id: 0,
+  authorRef: {
+    description: '',
+    name: '',
+    surname: '',
+    position: ''
+  },
+  categories: []
 }
 
 export const newsStore = atom<INews[]>([])

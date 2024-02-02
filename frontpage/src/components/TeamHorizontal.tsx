@@ -1,11 +1,12 @@
 import { useAtom } from 'jotai';
 import * as React from 'react';
-import { doctorStore, doctorsStore } from '../stores/basicInfoStore';
+import { doctorStore, doctorsStore, initialDoctor } from '../stores/basicInfoStore';
 import { useEffect } from 'react';
-import { collection, getDocs } from 'firebase/firestore/lite';
+import { collection, doc, getDocs } from 'firebase/firestore/lite';
 import { Doctor } from '../interfaces/interface';
 import { dbStore } from '../utils/firebase';
 import { Link } from 'react-router-dom';
+import { getDataWithReferences } from '../utils/helpers';
 
 const TeamHorizontal = () => {
   const [doctors, setDoctors] = useAtom(doctorsStore),
@@ -13,36 +14,50 @@ const TeamHorizontal = () => {
 
   useEffect(() => {
     async function getDoctors(db: any) {
-      const dataCol = collection(db, 'doctors');
-      const dataSnapshot = await getDocs(dataCol);
-      const dataList = dataSnapshot.docs.map(doc => doc.data());
-      let reqData = {...dataList};
+      getDataWithReferences(dbStore, 'doctors').then((data: any) => {                               
+        const doctorsArray: Doctor[] = []
 
-      const doctorArray: Doctor[] = []
+        const length = data.length
+        data.map((d: any, index: number) => {
+          const newData: Doctor = {
+            id: index,
+            educationInformation: d.data.educationInformation,
+            email: d.data.email,
+            facebookAccount: d.data.facebookAccount,
+            fieldOfInterest: d.data.fieldOfInterest,
+            imagePath: {
+              altName: d.data.image.data.altName,
+              name: d.data.image.data.name,
+              url: d.data.image.data.url
+            },
+            linkedInAccount: d.data.linkedInAccount,
+            name: d.data.name,
+            phoneNumber: d.data.phoneNumber,
+            specialty: d.data.specialty,
+            surname: d.data.surname,
+            services: []
+          }
 
-      for (var key in reqData) {
-        let data: Doctor = {
-          educationInformation: reqData[key].educationInformation,
-          email: reqData[key].email,
-          facebookAccount: reqData[key].facebookAccount,
-          fieldOfInterest: reqData[key].fieldOfInterest,
-          imagePath: reqData[key].imagePath,
-          imageRef: reqData[key].imageRef,
-          linkedInAccount: reqData[key].linkedInAccount,
-          name: reqData[key].name,
-          phoneNumber: reqData[key].phoneNumber,
-          specialty:reqData[key].specialty,
-          surname: reqData[key].surname,
-          services: reqData[key].services,
-        }
-        doctorArray.push(data)
-      }
+          doctorsArray.push(newData)
+        })
 
-      setDoctors(doctorArray)
+        setDoctors(doctorsArray)
+      })
     }
 
     getDoctors(dbStore).catch(console.error);
   }, [])
+
+  useEffect(() => {
+    if (doctor !== initialDoctor)
+      window.location.href = `/doctorsOne?id=${doctor.id}`;
+  }, [doctor])
+
+  async function handleNavigation(e: any, doctorOne: Doctor) {
+    e.preventDefault();
+    await setDoctor(doctorOne);
+  }
+  
   
   return (
     <section id="team" data-stellar-background-ratio="1">
@@ -58,15 +73,20 @@ const TeamHorizontal = () => {
           <div className="clearfix"></div>
 
           {
-            doctors.map((doctor: Doctor) => {
+            doctors.map((doctor: Doctor, index: number) => {
               return (
-                <div className="col-md-4 col-sm-6">
-                  <a 
-                    href="/doctorsOne"
-                    onClick={() => setDoctor(doctor)}
-                  >
+                <div className="col-md-4 col-sm-6" key={index}>
+                  <a href="/doctorsOne" onClick={(e: any) => handleNavigation(e, doctor)}>
                     <div className="team-thumb wow fadeInUp" data-wow-delay="0.2s">
-                      <img src="images/team-image1.jpg" className="img-responsive" alt="" />
+                      <img
+                        src={doctor.imagePath.url}
+                        className="img-responsive"
+                        alt={doctor.imagePath.altName}
+                        style={{
+                          maxHeight: "332px",
+                          objectFit: "cover"
+                        }}
+                      />
 
                       <div className="team-info">
                         <h3>{doctor.name} {doctor.surname}</h3>
@@ -87,7 +107,7 @@ const TeamHorizontal = () => {
                           </p>
                         </div>
                         <ul className="social-icon">
-                          <li><a href={doctor.linkedInAccount} className="fa fa-linkedin-square"></a></li>
+                          <li><Link to={doctor.linkedInAccount} className="fa fa-linkedin-square"></Link></li>
                           <li>
                             <Link
                               to='#'
